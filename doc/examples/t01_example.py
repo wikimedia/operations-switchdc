@@ -1,8 +1,14 @@
 from switchdc import remote
 from switchdc.log import logger
-
+from switchdc.stages import get_module_config_dir
 
 __title__ = "Example task description"
+
+# Standard location for config files specific to this module:
+# ${CONFIG_DIR}/stages.d/t01_example
+conf = get_module_config_dir(__name__)
+# Tests should go in switchdc/tests/test_t01_example.py and fixture files in
+# switchdc/tests/fixtures/stages.d/t01_example
 
 
 def execute(dc_from, dc_to):

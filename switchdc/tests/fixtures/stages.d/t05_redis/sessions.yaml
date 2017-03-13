@@ -1,0 +1,9 @@
+from:
+  shard1:
+    host: 127.0.0.1
+    port: 16379
+
+to:
+  shard1:
+    host: 127.0.0.1
+    port: 16380
