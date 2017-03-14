@@ -3,6 +3,7 @@ import glob
 import importlib
 import os
 
+from switchdc import log
 from switchdc.menu import Item, Menu
 
 
@@ -93,6 +94,7 @@ def generate_menu(dc_from, dc_to):
 
 def main():
     """Entry point, run the tool."""
+    log.setup_logging()
     args = parse_args()
     menu = generate_menu(args.dc_from, args.dc_to)
 
