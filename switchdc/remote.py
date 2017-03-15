@@ -1,3 +1,4 @@
+from collections import defaultdict
 import yaml
 
 from cumin.query import QueryBuilder
@@ -71,3 +72,61 @@ def get_puppet_agent_command(noop=False):
         command += ' --noop'
 
     return command
+
+
+class RemoteExecutionError(Exception):
+    pass
+
+
+class Remote(object):
+
+    def __init__(self, site=None):
+        if site is None:
+            self._site = None
+        else:
+            self._site = Remote.query('R:ganglia::cluster%site = {}'.format(site))
+        self._failed_commands = defaultdict(list)
+        self._hosts = []
+
+    @staticmethod
+    def query(qs):
+        return set(query(qs))
+
+    def select(self, q):
+        if type(q) is set:
+            host_list = q
+        else:
+            host_list = Remote.query(q)
+
+        if self._site is None:
+            self._hosts = list(host_list)
+        else:
+            self._hosts = list(self._site & host_list)
+
+    def async(self, *commands, **kwargs):
+        return self._run('async', *commands, **kwargs)
+
+    def sync(self, *commands, **kwargs):
+        return self._run('sync', *commands, **kwargs)
+
+    def _run(self, mode, *commands, **kwargs):
+        self._failed_commands = defaultdict(list)
+        rc, worker = execute(self._hosts, mode, commands, **kwargs)
+        if rc == 0:
+            return 0
+        for node in worker._handler_instance.nodes.itervalues():
+            if node.state.is_failed:
+                self._failed_commands[node.running_command_index].append(node.name)
+        raise RemoteExecutionError(rc)
+
+    def puppet_run(self, **kwargs):
+        """
+        Special method to run puppet ensuring a reasonable batch size
+        """
+        if 'batch_size' not in kwargs:
+            kwargs['batch_size'] = 20
+        return self.sync(get_puppet_agent_command(), **kwargs)
+
+    @property
+    def failures(self):
+        return self._failed_commands

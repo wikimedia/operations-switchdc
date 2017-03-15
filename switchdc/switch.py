@@ -2,6 +2,7 @@ import argparse
 import glob
 import importlib
 import os
+import sys
 
 from switchdc import get_global_config, log
 from switchdc.menu import Item, Menu
@@ -105,16 +106,19 @@ def main():
         # Run a single task in non-interactive mode
         for item in menu.items[int(args.task[1:3]) - 1].items:
             if item.name.split('.')[-1] == args.task:
-                item.run()
-                break
+                return item.run()
     elif args.stage is not None:
         # Run all tasks in a stage in non-interactive mode
         for item in menu.items[int(args.stage) - 1].items:
-            item.run()
+            rc = item.run()
+            if rc != 0:
+                print "Task {name}: {title} failed, aborting execution".format(name=item.name, title=item.title)
+                return rc
+        return 0
     else:
         # Run the interactive menu
         run(menu, args.dc_from, args.dc_to)
-
+        return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

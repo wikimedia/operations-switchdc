@@ -1,4 +1,5 @@
 from switchdc.log import irc_logger, logger
+from switchdc.remote import RemoteExecutionError
 
 
 class Menu(object):
@@ -107,6 +108,8 @@ class Item(object):
 
         try:
             retval = self.function(*self.args, **self.kwargs)
+        except RemoteExecutionError as e:
+            retval = e.message
         except Exception as e:
             retval = -1
             print('FAILED: {msg}'.format(msg=e.message))

@@ -1,12 +1,12 @@
 from switchdc import remote
 from switchdc.log import logger
-from switchdc.stages import get_module_config_dir
+from switchdc.stages import get_module_config
 
 __title__ = "Example task description"
 
 # Standard location for config files specific to this module:
 # ${CONFIG_DIR}/stages.d/t01_example
-conf = get_module_config_dir(__name__)
+conf = get_module_config(__name__)
 # Tests should go in switchdc/tests/test_t01_example.py and fixture files in
 # switchdc/tests/fixtures/stages.d/t01_example
 
@@ -14,7 +14,7 @@ conf = get_module_config_dir(__name__)
 def execute(dc_from, dc_to):
     """Entry point to execute this task
 
-    Must not raise execeptions, all exceptions must be catched here and managed.
+    All exceptions not raised by cumin should be managed.
     Returns 0 on success, a positive integer on failure.
 
     Arguments:
@@ -23,7 +23,13 @@ def execute(dc_from, dc_to):
     """
     logger.debug(__name__)
     print('Executed with {dc_from} - {dc_to}'.format(dc_from=dc_from, dc_to=dc_to))
-    rc, worker = remote.run('R:Class = Role::Memcached', 'sync', ['date'],
-                            success_threshold=0.9, batch_size=5, batch_sleep=5)
+    # Act on the nodes in dc_to
+    to = remote.Remote(site=dc_to)
+    # Select a class of hosts
+    to.select('R:Class = Role::Memcached')
+    # Execute the commands listed in async mode
+    # This could raise an exception that is handled in the master script
+    to.async('date', 'ls -la /tmp',
+             success_threshold=0.9, batch_size=5, batch_sleep=5)
 
-    return rc
+    return 0
