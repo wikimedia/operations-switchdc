@@ -3,7 +3,7 @@ import glob
 import importlib
 import os
 
-from switchdc import log
+from switchdc import get_global_config, log
 from switchdc.menu import Item, Menu
 
 
@@ -95,6 +95,9 @@ def generate_menu(dc_from, dc_to):
 def main():
     """Entry point, run the tool."""
     log.setup_logging()
+    config = get_global_config()
+    if {'tcpircbot_host', 'tcpircbot_port'} <= set(config):
+        log.setup_irc(config)
     args = parse_args()
     menu = generate_menu(args.dc_from, args.dc_to)
 

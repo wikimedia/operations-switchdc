@@ -1,4 +1,4 @@
-from switchdc.log import logger
+from switchdc.log import irc_logger, logger
 
 
 class Menu(object):
@@ -100,6 +100,11 @@ class Item(object):
 
     def run(self):
         """Run the item callind the configured function."""
+        params = ', '.join(self.args + ['='.join([str(k), str(v)]) for k, v in self.kwargs.iteritems()])
+        message = 'Executing task {name}({params}): {title}'.format(name=self.name, params=params, title=self.title)
+        logger.info(message)
+        irc_logger.info(message)
+
         try:
             retval = self.function(*self.args, **self.kwargs)
         except Exception as e:
