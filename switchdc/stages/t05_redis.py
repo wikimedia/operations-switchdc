@@ -116,6 +116,7 @@ def execute(dc_from, dc_to):
     """
     Switches the replication for both redis clusters for mediawiki (jobqueue and sessions)
     """
+    all_remote = remote.Remote()
     for cluster in ['jobqueue', 'sessions']:
         try:
             servers = RedisShards(cluster)
@@ -123,9 +124,9 @@ def execute(dc_from, dc_to):
             logger.error("Failed loading redis data: %s", e, exc_info=True)
             return 1
         # Disable puppet everywhere
-        rc, worker = remote.execute(servers.hosts, 'sync', ['puppet agent --disable "switching over replication"'])
-        if rc != 0:
-            return rc
+        all_remote.select(set(servers.hosts))
+        all_remote.sync('puppet agent --disable "switching over replication"')
+
         # Now let's disable replication
         logger.info("Stopping replication for all instances in %s, cluster %s",
                     dc_to, cluster)
@@ -137,6 +138,7 @@ def execute(dc_from, dc_to):
             return 2
         logger.info("Starting replication for all instances in %s, cluster %s",
                     dc_from, cluster)
+
         try:
             servers.start_replica(dc_from, dc_to)
         except RedisSwitchError:
@@ -145,8 +147,6 @@ def execute(dc_from, dc_to):
             return 2
 
         # Enable puppet everywhere
-        rc, worker = remote.execute(servers.hosts, 'sync', ['puppet agent --enable'])
-        if rc != 0:
-            return rc
+        all_remote.sync('puppet agent --enable')
 
     return 0

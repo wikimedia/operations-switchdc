@@ -4,6 +4,7 @@ import unittest
 import mock
 import redis
 
+from switchdc import remote
 from switchdc.tests import base_config_dir, DockerManager
 import switchdc.stages.t05_redis as stage
 
@@ -122,8 +123,10 @@ class TestStage(TestRedisBase):
 
     @mock.patch('switchdc.remote.execute')
     def test_execute_cumin_fail(self, mock_exec):
-        mock_exec.return_value = (1, {})
-        self.assertEqual(stage.execute('from', 'to'), 1)
+        mock_exec.return_value = (1, mock.MagicMock())
+        with self.assertRaises(remote.RemoteExecutionError) as e:
+            stage.execute('from', 'to')
+        self.assertEqual(e.exception.message, 1)
         self.assertEqual(mock_exec.call_count, 1)
         self.assertTrue(self.red_from.is_master)
         self.assertEqual(self.red_to.slave_of, str(self.red_from))
