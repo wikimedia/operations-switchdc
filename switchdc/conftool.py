@@ -1,6 +1,13 @@
 import re
 
 from conftool import configuration, loader, kvobject
+from conftool.drivers import BackendError
+
+from switchdc.log import logger
+
+
+class ConfigError(Exception):
+    pass
 
 
 class Confctl(object):
@@ -27,7 +34,14 @@ class Confctl(object):
           confctl.update({'pooled': False}, service='appservers-.*', name='eqiad')
         """
         for obj in self._select(tags):
-            obj.update(changed)
+            try:
+                obj.update(changed)
+            except BackendError as e:
+                logger.error("Error writing to etcd: %s", e)
+                raise ConfigError(1)
+            except Exception as e:
+                logger.error("Generic error in conftool: %s", e)
+                raise ConfigError(3)
 
     def get(self, **tags):
         """

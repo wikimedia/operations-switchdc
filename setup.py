@@ -12,7 +12,7 @@ setup(
             'switchdc = switchdc.switch:main',
         ],
     },
-    install_requires=['conftool', 'pyyaml',  'redis'],
+    install_requires=['conftool', 'pyyaml',  'redis', 'requests'],
     test_requires=['docker>=2.0', 'mock', 'nose'],
     name='switchdc',
     packages=find_packages(),
