@@ -114,9 +114,8 @@ class Item(object):
         except ConfigError as e:
             retval = e.message
         except Exception as e:
-            retval = -1
-            print('FAILED: {msg}'.format(msg=e.message))
-            logger.exception(e)
+            retval = 99
+            logger.error('Failed to execute task {task}: {msg}'.format(task=self.name, msg=e.message), exc_info=True)
 
         if retval == 0:
             self.status = self.success

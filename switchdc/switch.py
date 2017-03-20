@@ -43,10 +43,14 @@ def run(menu, dc_from, dc_to):
             if type(item) == Menu:
                 menu = item
             elif type(item) == Item:
-                item.run()
+                rc = item.run()
+                if rc != 0:
+                    print('FAILED TO RUN TASK: {task}'.format(task=item.name))
         else:
             print('==> Invalid input <==')
             continue
+
+    return 0
 
 
 def parse_args():
@@ -102,23 +106,32 @@ def main():
     args = parse_args()
     menu = generate_menu(args.dc_from, args.dc_to)
 
+    rc = 1
     if args.task is not None:
         # Run a single task in non-interactive mode
         for item in menu.items[int(args.task[1:3]) - 1].items:
             if item.name.split('.')[-1] == args.task:
-                return item.run()
+                rc = item.run()
+                break
+        else:
+            print("Unable to find task '{task}'".format(task=args.task))
+
     elif args.stage is not None:
         # Run all tasks in a stage in non-interactive mode
-        for item in menu.items[int(args.stage) - 1].items:
-            rc = item.run()
-            if rc != 0:
-                print "Task {name}: {title} failed, aborting execution".format(name=item.name, title=item.title)
-                return rc
-        return 0
+        stage = int(args.stage)
+        if 0 < stage <= len(menu.items):
+            for item in menu.items[stage - 1].items:
+                rc = item.run()
+                if rc != 0:
+                    print "Task {name}: {title} failed, aborting execution".format(name=item.name, title=item.title)
+                    break
+        else:
+            print("Unable to find stage '{stage}'".format(stage=args.stage))
+
     else:
-        # Run the interactive menu
-        run(menu, args.dc_from, args.dc_to)
-        return 0
+        rc = run(menu, args.dc_from, args.dc_to)  # Run the interactive menu
+
+    return rc
 
 
 if __name__ == '__main__':
