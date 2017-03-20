@@ -1,6 +1,7 @@
-from switchdc.log import logger
 from switchdc import remote
+from switchdc.log import logger
 from switchdc.stages import get_module_config
+from switchdc.stages.lib import mysql
 
 __title__ = "wipe and warmup caches"
 
@@ -11,6 +12,9 @@ def execute(dc_from, dc_to):
     """
     Wipes out the caches in the inactive datacenter, and then warms them up
     """
+    logger.info("Waiting for the masters in %s to catch up", dc_to)
+    mysql.ensure_core_masters_in_sync(dc_from)
+
     logger.info("Wiping out the MediaWiki caches in %s", dc_to)
     to = remote.Remote(site=dc_to)
     to.select('R:class = role::memcached')

@@ -85,8 +85,9 @@ class Remote(object):
             self._site = None
         else:
             self._site = Remote.query('R:ganglia::cluster%site = {}'.format(site))
-        self._failed_commands = defaultdict(list)
+
         self._hosts = []
+        self.worker = None
 
     @staticmethod
     def query(qs):
@@ -110,13 +111,10 @@ class Remote(object):
         return self._run('sync', *commands, **kwargs)
 
     def _run(self, mode, *commands, **kwargs):
-        self._failed_commands = defaultdict(list)
-        rc, worker = execute(self._hosts, mode, commands, **kwargs)
+        rc, self.worker = execute(self._hosts, mode, commands, **kwargs)
         if rc == 0:
             return 0
-        for node in worker._handler_instance.nodes.itervalues():
-            if node.state.is_failed:
-                self._failed_commands[node.running_command_index].append(node.name)
+
         raise RemoteExecutionError(rc)
 
     def puppet_run(self, **kwargs):
@@ -128,5 +126,14 @@ class Remote(object):
         return self.sync(get_puppet_agent_command(), **kwargs)
 
     @property
+    def hosts(self):
+        return self._hosts
+
+    @property
     def failures(self):
-        return self._failed_commands
+        failed_commands = defaultdict(list)
+        for node in self.worker._handler_instance.nodes.itervalues():
+            if node.state.is_failed:
+                failed_commands[node.running_command_index].append(node.name)
+
+        return failed_commands
