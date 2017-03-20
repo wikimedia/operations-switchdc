@@ -1,4 +1,3 @@
-from switchdc import remote
 from switchdc.log import logger
 from switchdc.stages.lib import mysql
 

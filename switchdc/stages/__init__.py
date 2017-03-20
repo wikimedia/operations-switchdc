@@ -1,9 +1,6 @@
 import os
 
-import yaml
-
 from switchdc import config_dir, get_config_file
-from switchdc.log import logger
 
 
 def get_module_config_dir(name):
