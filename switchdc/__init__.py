@@ -8,6 +8,10 @@ from switchdc.log import logger
 config_dir = os.environ.get('SWITCHDC_CONFIG_DIR', '/etc/switchdc')
 
 
+class SwitchdcError(Exception):
+    """Custom top Exception class for all custom exceptions."""
+
+
 def get_global_config():
     """Return the global configuration."""
     return get_config(config_dir)

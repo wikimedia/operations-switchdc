@@ -1,0 +1,43 @@
+import os
+
+import requests
+
+from switchdc import remote, SwitchdcError
+from switchdc.stages import get_module_config
+
+config = get_module_config(__name__)
+
+
+class MediawikiError(SwitchdcError):
+    """Custom exception class for errors of this module."""
+
+
+def check_config_line(filename, expected):
+    """Return True if the expected string is found in the configuration file, False otherwise.
+
+    Arguments:
+    filename -- filename without extension of wmf-config
+    expected -- string expected to be found in the configuration file
+    """
+    noc_server = config.get('noc_server', 'terbium.eqiad.wmnet')
+    try:
+        mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename))
+    except Exception:
+        return False
+
+    return (expected in mwconfig.text)
+
+
+def scap_sync_config_file(filename, message):
+    """Execute scap sync-file to deploy a specific configuration file of wmf-config.
+
+    Arguments:
+    filename -- filename without extension of wmf-config
+    message  -- the message to use for the scap sync-file execution
+    """
+    query = 'R:Class = Deployment::Rsync and R:Class%cron_ensure = absent'
+    command = 'su - {user} -c \'scap sync-file wmf-config/{filename}.php "{message}"\''.format(
+        user=os.getlogin(), filename=filename, message=message)
+    rc, _ = remote.run(query, 'sync', [command])
+    if rc != 0:
+        raise MediawikiError(1)

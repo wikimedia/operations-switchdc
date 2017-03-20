@@ -1,3 +1,4 @@
+from switchdc import SwitchdcError
 from switchdc.log import irc_logger, logger
 from switchdc.remote import RemoteExecutionError
 from switchdc.conftool import ConfigError
@@ -109,9 +110,7 @@ class Item(object):
 
         try:
             retval = self.function(*self.args, **self.kwargs)
-        except RemoteExecutionError as e:
-            retval = e.message
-        except ConfigError as e:
+        except (ConfigError, RemoteExecutionError, SwitchdcError) as e:
             retval = e.message
         except Exception as e:
             retval = 99
