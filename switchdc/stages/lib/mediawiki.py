@@ -3,9 +3,6 @@ import os
 import requests
 
 from switchdc import remote, SwitchdcError
-from switchdc.stages import get_module_config
-
-config = get_module_config(__name__)
 
 
 class MediawikiError(SwitchdcError):
@@ -19,7 +16,9 @@ def check_config_line(filename, expected):
     filename -- filename without extension of wmf-config
     expected -- string expected to be found in the configuration file
     """
-    noc_server = config.get('noc_server', 'terbium.eqiad.wmnet')
+    noc = remote.Remote()
+    noc.select('R:Class = Role::Noc::Site')
+    noc_server = noc.hosts[0]
     try:
         mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename))
     except Exception:
