@@ -6,7 +6,8 @@ import redis
 
 import switchdc.stages.t05_redis as stage
 
-from switchdc.lib import remote
+from switchdc import SwitchdcError
+from switchdc.lib.remote import RemoteExecutionError
 from switchdc.tests import base_config_dir, DockerManager
 
 
@@ -114,31 +115,32 @@ class TestRedisShards(TestRedisBase):
 
 class TestStage(TestRedisBase):
 
-    @mock.patch('switchdc.remote.execute')
-    def test_execute(self, mock_exec):
-        mock_exec.return_value = (0, {})
-        self.assertEqual(stage.execute('from', 'to'), 0)
-        self.assertEqual(mock_exec.call_count, 4)
+    @mock.patch('switchdc.stages.t05_redis.Remote.sync')
+    def test_execute(self, mock_remote):
+        mock_remote.return_value = 0
+        self.assertIsNone(stage.execute('from', 'to'))
+        self.assertEqual(mock_remote.call_count, 4)
         self.assertTrue(self.red_to.is_master)
         self.assertEqual(self.red_from.slave_of, str(self.red_to))
 
-    @mock.patch('switchdc.remote.execute')
-    def test_execute_cumin_fail(self, mock_exec):
-        mock_exec.return_value = (1, mock.MagicMock())
-        with self.assertRaises(remote.RemoteExecutionError) as e:
+    @mock.patch('switchdc.stages.t05_redis.Remote.sync')
+    def test_execute_cumin_fail(self, mock_remote):
+        mock_remote.side_effect = RemoteExecutionError(1)
+        with self.assertRaises(RemoteExecutionError) as e:
             stage.execute('from', 'to')
         self.assertEqual(e.exception.message, 1)
-        self.assertEqual(mock_exec.call_count, 1)
+        self.assertEqual(mock_remote.call_count, 1)
         self.assertTrue(self.red_from.is_master)
         self.assertEqual(self.red_to.slave_of, str(self.red_from))
 
-    @mock.patch('switchdc.remote.execute')
-    def test_execute_redis_fail(self, mock_exec):
-        mock_exec.return_value = (0, {})
+    @mock.patch('switchdc.stages.t05_redis.Remote.sync')
+    def test_execute_redis_fail(self, mock_remote):
+        mock_remote.return_value = 0
         with mock.patch('switchdc.stages.t05_redis.RedisInstance.stop_replica') as m:
             m.side_effect = ValueError("Bad, sorry")
-            self.assertEqual(stage.execute('from', 'to'), 2)
+            with self.assertRaisesRegexp(SwitchdcError, '3'):
+                stage.execute('from', 'to')
         # The first cluster has no instances, so no redis call is actually made
-        self.assertEqual(mock_exec.call_count, 3)
+        self.assertEqual(mock_remote.call_count, 3)
         self.assertTrue(self.red_from.is_master)
         self.assertEqual(self.red_to.slave_of, str(self.red_from))
