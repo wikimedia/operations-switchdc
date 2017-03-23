@@ -1,6 +1,6 @@
 import os
 
-from switchdc import config_dir, get_config_file
+from switchdc import config_dir, get_config
 
 
 def get_module_config_dir(name):
@@ -18,4 +18,4 @@ def get_module_config(name):
     Arguments:
     name -- the name of the module
     """
-    return get_config_file(get_module_config_dir(name))
+    return get_config(get_module_config_dir(name))
