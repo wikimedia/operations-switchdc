@@ -3,11 +3,12 @@ import re
 from conftool import configuration, loader, kvobject
 from conftool.drivers import BackendError
 
+from switchdc import SwitchdcError
 from switchdc.log import logger
 
 
-class ConfigError(Exception):
-    pass
+class ConfigError(SwitchdcError):
+    """Custom exception class for errors of this module."""
 
 
 class Confctl(object):

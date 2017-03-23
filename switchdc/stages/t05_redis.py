@@ -3,6 +3,7 @@ from collections import defaultdict
 import redis
 import yaml
 
+from switchdc import SwitchdcError
 from switchdc.log import logger
 from switchdc.stages import get_module_config, get_module_config_dir
 from switchdc import remote
@@ -15,8 +16,8 @@ config_dir = get_module_config_dir('t05_redis')
 REDIS_PASSWORD = config.get('redis_password', None)
 
 
-class RedisSwitchError(Exception):
-    pass
+class RedisSwitchError(SwitchdcError):
+    """Custom exception class for Redis errors."""
 
 
 class RedisInstance(object):
@@ -98,7 +99,7 @@ class RedisShards(object):
             if not instance.is_master:
                 logger.error("Instance %s is still a slave of %s, aborting",
                              instance, instance.slave_of)
-                raise RedisSwitchError("stop_replica")
+                raise RedisSwitchError(1)
 
     def start_replica(self, dc, dc_master):
         for shard, instance in self.shards[dc].items():
@@ -109,7 +110,7 @@ class RedisShards(object):
                 instance.start_replica(master)
             if instance.slave_of != str(master):
                 logger.error("Replica on %s is not correctly configured", instance)
-                raise RedisSwitchError("start_replica")
+                raise RedisSwitchError(2)
 
 
 def execute(dc_from, dc_to):

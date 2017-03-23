@@ -4,6 +4,7 @@ import yaml
 from cumin.query import QueryBuilder
 from cumin.transport import Transport
 
+from switchdc import SwitchdcError
 from switchdc.log import logger
 
 
@@ -74,8 +75,8 @@ def get_puppet_agent_command(noop=False):
     return command
 
 
-class RemoteExecutionError(Exception):
-    pass
+class RemoteExecutionError(SwitchdcError):
+    """Custom exception class for errors of this module."""
 
 
 class Remote(object):

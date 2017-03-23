@@ -1,7 +1,5 @@
 from switchdc import SwitchdcError
 from switchdc.log import irc_logger, logger
-from switchdc.remote import RemoteExecutionError
-from switchdc.conftool import ConfigError
 
 
 class Menu(object):
@@ -102,7 +100,7 @@ class Item(object):
             self.kwargs = {}
 
     def run(self):
-        """Run the item callind the configured function."""
+        """Run the item calling the configured function."""
         params = ', '.join(self.args + ['='.join([str(k), str(v)]) for k, v in self.kwargs.iteritems()])
         message = 'Executing task {name}({params}): {title}'.format(name=self.name, params=params, title=self.title)
         logger.info(message)
@@ -110,7 +108,7 @@ class Item(object):
 
         try:
             retval = self.function(*self.args, **self.kwargs)
-        except (ConfigError, RemoteExecutionError, SwitchdcError) as e:
+        except SwitchdcError as e:
             retval = e.message
         except Exception as e:
             retval = 99

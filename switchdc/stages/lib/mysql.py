@@ -1,8 +1,9 @@
+from switchdc import SwitchdcError
 from switchdc.log import logger
 from switchdc.remote import Remote
 
 
-class MysqlError(Exception):
+class MysqlError(SwitchdcError):
     """Custom exception class for errors of this module."""
 
 
