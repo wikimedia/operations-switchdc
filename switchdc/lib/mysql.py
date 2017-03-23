@@ -1,6 +1,6 @@
 from switchdc import SwitchdcError
+from switchdc.lib.remote import Remote
 from switchdc.log import logger
-from switchdc.remote import Remote
 
 
 class MysqlError(SwitchdcError):
