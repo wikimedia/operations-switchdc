@@ -4,7 +4,7 @@ import redis
 import yaml
 
 from switchdc import SwitchdcError
-from switchdc.lib import remote
+from switchdc.lib.remote import Remote
 from switchdc.log import logger
 from switchdc.stages import get_module_config, get_module_config_dir
 
@@ -115,8 +115,8 @@ class RedisShards(object):
 
 def execute(dc_from, dc_to):
     """Switches the replication for both redis clusters for mediawiki (jobqueue and sessions)."""
-    all_remote = remote.Remote()
-    for cluster in ['jobqueue', 'sessions']:
+    all_remote = Remote()
+    for cluster in ('jobqueue', 'sessions'):
         try:
             servers = RedisShards(cluster)
         except Exception, e:

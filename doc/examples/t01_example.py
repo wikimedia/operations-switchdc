@@ -1,4 +1,4 @@
-from switchdc.lib import remote
+from switchdc.lib.remote import Remote
 from switchdc.log import logger
 from switchdc.stages import get_module_config
 
@@ -24,12 +24,11 @@ def execute(dc_from, dc_to):
     logger.debug(__name__)
     print('Executed with {dc_from} - {dc_to}'.format(dc_from=dc_from, dc_to=dc_to))
     # Act on the nodes in dc_to
-    to = remote.Remote(site=dc_to)
+    to = Remote(site=dc_to)
     # Select a class of hosts
     to.select('R:Class = Role::Memcached')
     # Execute the commands listed in async mode
     # This could raise an exception that is handled in the master script
-    to.async('date', 'ls -la /tmp',
-             success_threshold=0.9, batch_size=5, batch_sleep=5)
+    to.async('date', 'ls -la /tmp', success_threshold=0.9, batch_size=5, batch_sleep=5)
 
     return 0

@@ -1,4 +1,5 @@
-from switchdc.lib import mysql, remote
+from switchdc.lib import mysql
+from switchdc.lib.remote import Remote, RemoteExecutionError
 from switchdc.log import logger
 from switchdc.stages import get_module_config
 
@@ -13,7 +14,7 @@ def execute(dc_from, dc_to):
     mysql.ensure_core_masters_in_sync(dc_from)
 
     logger.info("Wiping out the MediaWiki caches in %s", dc_to)
-    to = remote.Remote(site=dc_to)
+    to = Remote(site=dc_to)
     to.select('R:class = role::memcached')
     to.sync('service memcached restart')
     to.select('R:class = role::mediawiki::webserver')
@@ -30,9 +31,11 @@ def execute(dc_from, dc_to):
     api_warmup = "{basecmd}urls-server.txt clone {dc} api_appserver".format(
         dc=dc_to, basecmd=base_warmup
     )
-    # Note: this cannot run on terbium because it's still trusty
+
+    remote = Remote()
+    remote.select(set(['wasat.codfw.wmnet']))  # TODO: convert to query once terbium is upgraded
     try:
-        remote.execute(['wasat.codfw.wmnet'], 'sync', [memc_warmup, appserver_warmup, api_warmup])
-    except remote.RemoteExecutionError as e:
+        remote.sync(memc_warmup, appserver_warmup, api_warmup)
+    except RemoteExecutionError as e:
         logger.warn('Cache warmup scripts ended with return status %s', e.message)
     return 0
