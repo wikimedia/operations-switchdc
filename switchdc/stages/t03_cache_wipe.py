@@ -1,7 +1,6 @@
-from switchdc import remote
+from switchdc.lib import mysql, remote
 from switchdc.log import logger
 from switchdc.stages import get_module_config
-from switchdc.stages.lib import mysql
 
 __title__ = "wipe and warmup caches"
 

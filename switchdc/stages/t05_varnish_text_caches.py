@@ -1,4 +1,4 @@
-from switchdc import remote
+from switchdc.lib import remote
 
 __title__ = 'Enable Puppet and force a run to get updated config on Varnish text caches'
 

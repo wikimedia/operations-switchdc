@@ -4,9 +4,10 @@ import unittest
 import mock
 import redis
 
-from switchdc import remote
-from switchdc.tests import base_config_dir, DockerManager
 import switchdc.stages.t05_redis as stage
+
+from switchdc.lib import remote
+from switchdc.tests import base_config_dir, DockerManager
 
 
 class TestRedisBase(unittest.TestCase):

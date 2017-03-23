@@ -4,9 +4,9 @@ import redis
 import yaml
 
 from switchdc import SwitchdcError
+from switchdc.lib import remote
 from switchdc.log import logger
 from switchdc.stages import get_module_config, get_module_config_dir
-from switchdc import remote
 
 __title__ = 'Switch the Redis replication'
 

@@ -1,5 +1,5 @@
+from switchdc.lib import mysql
 from switchdc.log import logger
-from switchdc.stages.lib import mysql
 
 __title__ = "set core DB masters in read-only mode"
 

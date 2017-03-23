@@ -1,5 +1,5 @@
+from switchdc.lib import mediawiki
 from switchdc.log import logger
-from switchdc.stages.lib import mediawiki
 
 __title__ = "Set MediaWiki in read-write mode (db_to config already merged and git pulled)"
 

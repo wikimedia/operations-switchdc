@@ -1,6 +1,6 @@
-from switchdc import conftool
+from switchdc.lib import conftool
+from switchdc.lib.remote import Remote
 from switchdc.log import logger
-from switchdc.remote import Remote
 
 __title__ = "Start MediaWiki maintenance in the new master DC"
 

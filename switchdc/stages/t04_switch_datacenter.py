@@ -1,6 +1,5 @@
-from switchdc import conftool
+from switchdc.lib import conftool, mediawiki
 from switchdc.log import logger
-from switchdc.stages.lib import mediawiki
 
 __title__ = "Switch MediaWiki configuration to the new datacenter"
 

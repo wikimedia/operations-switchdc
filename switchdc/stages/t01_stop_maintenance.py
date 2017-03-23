@@ -1,5 +1,5 @@
-from switchdc import conftool
-from switchdc.remote import Remote, RemoteExecutionError, get_puppet_agent_command
+from switchdc.lib import conftool
+from switchdc.lib.remote import Remote, RemoteExecutionError, get_puppet_agent_command
 from switchdc.log import logger
 
 __title__ = "Stop MediaWiki maintenance in the old master DC"

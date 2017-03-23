@@ -1,4 +1,4 @@
-from switchdc import remote
+from switchdc.lib import remote
 from switchdc.log import logger
 from switchdc.stages import get_module_config
 
