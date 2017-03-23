@@ -8,9 +8,7 @@ config = get_module_config('t03_cache_wipe')
 
 
 def execute(dc_from, dc_to):
-    """
-    Wipes out the caches in the inactive datacenter, and then warms them up
-    """
+    """Wipes out the caches in the inactive datacenter, and then warms them up."""
     logger.info("Waiting for the masters in %s to catch up", dc_to)
     mysql.ensure_core_masters_in_sync(dc_from)
 

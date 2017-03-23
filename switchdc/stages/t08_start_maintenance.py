@@ -6,9 +6,7 @@ __title__ = "Start MediaWiki maintenance in the new master DC"
 
 
 def execute(dc_from, dc_to):
-    """
-    Sets mediawiki-maintenance online, starting jobrunners and cronjobs
-    """
+    """Sets mediawiki-maintenance online, starting jobrunners and cronjobs."""
     # 1: This will make any puppet run apply the correct configuration
     discovery = conftool.Confctl('discovery')
     discovery.update({'pooled': True}, dnsdisc='mediawiki-maintenance',

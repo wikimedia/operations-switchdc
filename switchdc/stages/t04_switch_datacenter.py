@@ -5,9 +5,7 @@ __title__ = "Switch MediaWiki configuration to the new datacenter"
 
 
 def execute(dc_from, dc_to):
-    """
-    Switched the MediaWiki master DC in etcd and in the MediaWiki code.
-    """
+    """Switched the MediaWiki master DC in etcd and in the MediaWiki code."""
     discovery = conftool.Confctl('discovery')
     # 1: switch DNS discovery record for the new dc to on.
     # This will NOT trigger confd to change the DNS admin state as it will cause a validation error

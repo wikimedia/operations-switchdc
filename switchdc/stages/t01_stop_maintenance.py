@@ -6,9 +6,7 @@ __title__ = "Stop MediaWiki maintenance in the old master DC"
 
 
 def execute(dc_from, dc_to):
-    """
-    Sets mediawiki-maintenance offline, stopping jobrunners and cronjobs
-    """
+    """Sets mediawiki-maintenance offline, stopping jobrunners and cronjobs."""
     # This will make any puppet run apply the correct configuration
     discovery = conftool.Confctl('discovery')
     discovery.update({'pooled': False}, dnsdisc='mediawiki-maintenance',
@@ -44,7 +42,7 @@ def execute(dc_from, dc_to):
 
     # We just log an error, don't actually report a failure to the system. We can live with this.
     try:
-        remote.sync("pgrep php")
+        remote.sync('pgrep php')
         logger.error('Stray php processes still present on the maintenance host, please check')
     except RemoteExecutionError:
         pass

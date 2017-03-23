@@ -114,9 +114,7 @@ class RedisShards(object):
 
 
 def execute(dc_from, dc_to):
-    """
-    Switches the replication for both redis clusters for mediawiki (jobqueue and sessions)
-    """
+    """Switches the replication for both redis clusters for mediawiki (jobqueue and sessions)."""
     all_remote = remote.Remote()
     for cluster in ['jobqueue', 'sessions']:
         try:
@@ -129,8 +127,7 @@ def execute(dc_from, dc_to):
         all_remote.sync('puppet agent --disable "switching over replication"')
 
         # Now let's disable replication
-        logger.info("Stopping replication for all instances in %s, cluster %s",
-                    dc_to, cluster)
+        logger.info("Stopping replication for all instances in %s, cluster %s", dc_to, cluster)
         try:
             servers.stop_replica(dc_to)
         except RedisSwitchError:
@@ -139,7 +136,6 @@ def execute(dc_from, dc_to):
             return 2
         logger.info("Starting replication for all instances in %s, cluster %s",
                     dc_from, cluster)
-
         try:
             servers.start_replica(dc_from, dc_to)
         except RedisSwitchError:
