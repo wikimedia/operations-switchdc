@@ -38,4 +38,3 @@ def execute(dc_from, dc_to):
         remote.sync(memc_warmup, appserver_warmup, api_warmup)
     except RemoteExecutionError as e:
         logger.warn('Cache warmup scripts ended with return status %s', e.message)
-    return 0

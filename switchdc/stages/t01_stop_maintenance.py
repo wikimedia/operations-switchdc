@@ -1,3 +1,4 @@
+from switchdc import SwitchdcError
 from switchdc.lib import conftool, puppet
 from switchdc.lib.remote import Remote, RemoteExecutionError
 from switchdc.log import logger
@@ -14,7 +15,7 @@ def execute(dc_from, dc_to):
     for obj in discovery.get(dnsdisc='mediawiki-maintenance', name=dc_from):
         if obj.pooled:
             logger.error("Discovery object %s should be depooled", obj.tags)
-            return 1
+            raise SwitchdcError(1)
 
     # 2: Stop the jobrunners in dc_from
     remote = Remote(site=dc_from)
@@ -46,5 +47,3 @@ def execute(dc_from, dc_to):
         logger.error('Stray php processes still present on the maintenance host, please check')
     except RemoteExecutionError:
         pass
-
-    return 0

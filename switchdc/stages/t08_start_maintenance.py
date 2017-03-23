@@ -33,5 +33,3 @@ def execute(dc_from, dc_to):
 
     # Verify that the crontab has entries
     remote.sync('test "$(crontab -u www-data -l | sed -r \'^(#|$)/d\')"')
-
-    return 0

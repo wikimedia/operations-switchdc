@@ -15,7 +15,7 @@ def execute(dc_from, dc_to):
     """Entry point to execute this task
 
     All exceptions not raised by cumin should be managed.
-    Returns 0 on success, a positive integer on failure.
+    No return value are expected. Return None on success, raise SwitchdcError o failure.
 
     Arguments:
     dc_from -- the name of the datacenter to switch from
@@ -30,5 +30,3 @@ def execute(dc_from, dc_to):
     # Execute the commands listed in async mode
     # This could raise an exception that is handled in the master script
     to.async('date', 'ls -la /tmp', success_threshold=0.9, batch_size=5, batch_sleep=5)
-
-    return 0

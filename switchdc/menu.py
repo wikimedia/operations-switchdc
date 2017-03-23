@@ -107,7 +107,8 @@ class Item(object):
         irc_logger.info(message)
 
         try:
-            retval = self.function(*self.args, **self.kwargs)
+            self.function(*self.args, **self.kwargs)
+            retval = 0
         except SwitchdcError as e:
             retval = e.message
         except Exception as e:

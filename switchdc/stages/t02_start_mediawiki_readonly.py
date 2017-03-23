@@ -1,3 +1,4 @@
+from switchdc import SwitchdcError
 from switchdc.log import logger
 from switchdc.stages.lib import mediawiki
 
@@ -25,4 +26,4 @@ def execute(dc_from, dc_to):
         mediawiki.scap_sync_config_file(filename, message)
         if not mediawiki.check_config_line(filename, expected):
             logger.error('Read-only mode not changed in the MediaWiki config?')
-            return 1
+            raise SwitchdcError(1)

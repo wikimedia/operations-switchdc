@@ -121,7 +121,8 @@ def execute(dc_from, dc_to):
             servers = RedisShards(cluster)
         except Exception, e:
             logger.error("Failed loading redis data: %s", e, exc_info=True)
-            return 1
+            raise SwitchdcError(1)
+
         # Disable puppet everywhere
         all_remote.select(set(servers.hosts))
         all_remote.sync('puppet agent --disable "switching over replication"')
@@ -131,19 +132,22 @@ def execute(dc_from, dc_to):
         try:
             servers.stop_replica(dc_to)
         except RedisSwitchError:
-            return 1
-        except Exception:
-            return 2
+            raise
+        except Exception as e:
+            logger.error('Failed to stop replication for all instances in %s, cluster %s: %s',
+                         dc_to, cluster, e.message)
+            raise SwitchdcError(3)
+
         logger.info("Starting replication for all instances in %s, cluster %s",
                     dc_from, cluster)
         try:
             servers.start_replica(dc_from, dc_to)
         except RedisSwitchError:
-            return 1
+            raise
         except Exception:
-            return 2
+            logger.error('Failed to start replication for all instances in %s, cluster %s',
+                         dc_to, cluster, e.message)
+            raise SwitchdcError(4)
 
         # Enable puppet everywhere
         all_remote.sync('puppet agent --enable')
-
-    return 0

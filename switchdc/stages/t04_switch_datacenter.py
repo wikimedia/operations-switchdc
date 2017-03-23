@@ -1,3 +1,4 @@
+from switchdc import SwitchdcError
 from switchdc.lib import conftool, mediawiki
 from switchdc.log import logger
 
@@ -14,7 +15,7 @@ def execute(dc_from, dc_to):
     for obj in discovery.get(dnsdisc=mw_records, name=dc_to):
         if not obj.pooled:
             logger.error("DNS discovery record %s is not pooled", obj.key)
-            return 1
+            raise SwitchdcError(1)
 
     # 2: Deploy the MediaWiki change already merged on the deployment server in pre-flight phase
     filename = 'CommonSettings'
@@ -24,11 +25,11 @@ def execute(dc_from, dc_to):
         mediawiki.scap_sync_config_file(filename, message)
         if not mediawiki.check_config_line(filename, expected):
             logger.error('Datacenter not changed in the MediaWiki config?')
-            return 1
+            raise SwitchdcError(1)
 
     # 3: switch off the old dc in conftool so that DNS discovery will be fixed
     discovery.update({'pooled': False}, dnsdisc=mw_records, name=dc_from)
     for obj in discovery.get(dnsdisc=mw_records, name=dc_from):
         if obj.pooled:
             logger.error("DNS discovery record %s is still pooled", obj.key)
-            return 1
+            raise SwitchdcError(1)

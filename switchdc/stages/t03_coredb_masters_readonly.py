@@ -1,3 +1,4 @@
+from switchdc import SwitchdcError
 from switchdc.lib import mysql
 from switchdc.log import logger
 
@@ -12,11 +13,8 @@ def execute(dc_from, dc_to):
         mysql.set_core_masters_readonly(dc_from, True)
         mysql.verify_core_masters_readonly(dc_from, True)
         mysql.verify_core_masters_readonly(dc_to, True)
+    except mysql.MysqlError:
+        raise
     except Exception as e:
-        logger.error('Unable to set and verify core DB masters are read-only on {dc}: {e}'.format(
-            dc=dc_to, e=e.message))
-        rc = 1
-    else:
-        rc = 0
-
-    return rc
+        logger.error('Unable to set and verify core DB masters are read-only: {e}'.format(e=e.message))
+        raise SwitchdcError(1)
