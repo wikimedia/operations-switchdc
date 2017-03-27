@@ -46,10 +46,10 @@ class Remote(object):
             self._hosts = list(self._site & host_list)
 
     def async(self, *commands, **kwargs):
-        return self._run('async', *commands, **kwargs)
+        return self._run('async', commands, **kwargs)
 
     def sync(self, *commands, **kwargs):
-        return self._run('sync', *commands, **kwargs)
+        return self._run('sync', commands, **kwargs)
 
     def _run(self, mode, commands, success_threshold=1.0, batch_size=None, batch_sleep=0):
         """Lower level Cumin's execution of commands on a list o hosts.
@@ -65,11 +65,12 @@ class Remote(object):
         """
         self.worker = Transport.new(cumin_config, logger)
         self.worker.hosts = self.hosts
-        self.worker.commands = commands
+        self.worker.commands = list(commands)
         self.worker.handler = mode
         self.worker.success_threshold = success_threshold
         self.worker.batch_size = batch_size
-        self.worker.batch_sleep = batch_sleep
+        if batch_sleep > 0:
+            self.worker.batch_sleep = batch_sleep
 
         rc = self.worker.execute()
         if rc == 0:

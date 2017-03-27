@@ -26,7 +26,7 @@ def get_db_remote(dc, **kwargs):
     """
     remote = Remote(site=dc)
     query = 'R:Class = Role::Mariadb::Groups'
-    for key, value in kwargs:
+    for key, value in kwargs.iteritems():
         query += ' and R:Class%mysql_{key} = "{value}"'.format(key=key, value=value)
 
     remote.select(query)
@@ -55,10 +55,10 @@ def verify_core_masters_readonly(dc, ro):
     remote.sync(get_query_command('SELECT @@global.read_only'))
 
     failed = False
-    for hosts, output in remote.worker.get_results():
-        if output != str(int(ro)):
+    for nodeset, output in remote.worker.get_results():
+        if output.message() != str(int(ro)):
             logger.error("Expected output to be '{expected}', got '{output}' for hosts {hosts}".format(
-                expected=str(int(ro)), output=output, hosts=hosts))
+                expected=str(int(ro)), output=output, hosts=list(nodeset)))
             failed = True
 
     if failed:
@@ -79,9 +79,9 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
         remote_from = get_db_remote(dc_from, group='core', role='master', shard=shard)
         remote_from.sync(get_query_command('SELECT @@GLOBAL.gtid_binlog_pos'))
 
-        for host, output in remote_from.worker.get_results():
-            if host == remote_from.hosts:
-                gtid = output
+        for nodeset, output in remote_from.worker.get_results():
+            if list(nodeset) == remote_from.hosts:
+                gtid = output.message()
                 break
         else:
             raise MysqlError(1)
@@ -90,7 +90,7 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
         query = "SELECT MASTER_GTID_WAIT('{gtid}', 30)".format(gtid=gtid)  # Wait for master is in sync, fail after 30
         remote_to.sync(get_query_command(query))
 
-        for host, output in remote_to.worker.get_results():
-            if output != '0':  # See https://mariadb.com/kb/en/mariadb/master_gtid_wait/
-                logger.error("GTID not in sync after timeout for host {host}".format(host=remote_to.hosts))
+        for nodeset, output in remote_to.worker.get_results():
+            if output.message() != '0':  # See https://mariadb.com/kb/en/mariadb/master_gtid_wait/
+                logger.error("GTID not in sync after timeout for host {host}".format(host=list(nodeset)))
                 raise MysqlError(2)

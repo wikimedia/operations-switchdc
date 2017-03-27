@@ -16,7 +16,8 @@ def check_config_line(filename, expected):
     remote.select('R:Class = Role::Noc::Site')
     noc_server = remote.hosts[0]
     try:
-        mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename))
+        mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename),
+                                headers={'Host': 'noc.wikimedia.org'})
     except Exception:
         return False
 
