@@ -2,6 +2,8 @@ from switchdc import SwitchdcError
 from switchdc.lib.remote import Remote
 from switchdc.log import logger
 
+CORE_SHARDS = ('s1', 's2', 's3', 's4', 's5', 's6', 's7', 'x1', 'es2', 'es3')
+
 
 class MysqlError(SwitchdcError):
     """Custom exception class for errors of this module."""
@@ -72,9 +74,7 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
     dc_from -- the name of the datacenter from where to get the master positions
     dc_to   -- the name of the datacenter where to check that they are in sync
     """
-    shards = ('s1', 's2', 's3', 's4', 's5', 's6', 's7', 'x1', 'es2', 'es3')
-
-    for shard in shards:
+    for shard in CORE_SHARDS:
         gtid = ''
         remote_from = get_db_remote(dc_from, group='core', role='master', shard=shard)
         remote_from.sync(get_query_command('SELECT @@GLOBAL.gtid_binlog_pos'))
