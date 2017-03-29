@@ -16,7 +16,8 @@ def get_query_command(query, database=''):
     query        -- the mysql query to be executed. Double quotes must be already escaped
     database     -- an optional database to connect to before executing the query. [optional, default: '']
     """
-    return 'mysql --skip-ssl --skip-column-names --batch -e "{query}" {database}'.format(query=query).strip()
+    return 'mysql --skip-ssl --skip-column-names --batch -e "{query}" {database}'.format(
+        query=query, database=database).strip()
 
 
 def get_db_remote(dc, **kwargs):
