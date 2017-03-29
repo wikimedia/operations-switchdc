@@ -9,14 +9,14 @@ class MysqlError(SwitchdcError):
     """Custom exception class for errors of this module."""
 
 
-def get_query_command(query):
+def get_query_command(query, database=''):
     """Return the command to be executed for a given query.
 
     Arguments:
     query        -- the mysql query to be executed. Double quotes must be already escaped
-    column_names -- wheter to include the column names or not in the output. [optional, default: False]
+    database     -- an optional database to connect to before executing the query. [optional, default: '']
     """
-    return 'mysql --skip-ssl --skip-column-names --batch -e "{query}"'.format(query=query)
+    return 'mysql --skip-ssl --skip-column-names --batch -e "{query}" {database}'.format(query=query).strip()
 
 
 def get_db_remote(dc, **kwargs):

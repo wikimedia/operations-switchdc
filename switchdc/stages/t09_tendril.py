@@ -20,6 +20,6 @@ def execute(dc_from, dc_to):
         master = remote.hosts[0]
         commands.append(mysql.get_query_command(
             ("UPDATE shards SET master_id = (SELECT id FROM servers WHERE host = '{master}') WHERE"
-             "name = '{shard}'").format(master=master, shard=shard)))
+             "name = '{shard}'").format(master=master, shard=shard), database='tendril'))
 
     tendril.sync(*commands)
