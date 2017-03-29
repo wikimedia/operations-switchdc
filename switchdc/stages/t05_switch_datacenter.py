@@ -1,5 +1,6 @@
 from switchdc import SwitchdcError
-from switchdc.lib import conftool, mediawiki
+from switchdc.lib import mediawiki
+from switchdc.lib.confctl import Confctl
 from switchdc.log import logger
 
 __title__ = "Switch MediaWiki configuration to the new datacenter"
@@ -7,7 +8,7 @@ __title__ = "Switch MediaWiki configuration to the new datacenter"
 
 def execute(dc_from, dc_to):
     """Switched the MediaWiki master DC in etcd and in the MediaWiki code."""
-    discovery = conftool.Confctl('discovery')
+    discovery = Confctl('discovery')
     # 1: switch DNS discovery record for the new dc to on.
     # This will NOT trigger confd to change the DNS admin state as it will cause a validation error
     mw_records = '(appserver|api|imagescaler)-rw'
