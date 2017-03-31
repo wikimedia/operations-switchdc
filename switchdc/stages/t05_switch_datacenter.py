@@ -11,7 +11,7 @@ def execute(dc_from, dc_to):
     discovery = Confctl('discovery')
     # 1: switch DNS discovery record for the new dc to on.
     # This will NOT trigger confd to change the DNS admin state as it will cause a validation error
-    mw_records = '(appserver|api|imagescaler)-rw'
+    mw_records = '(appservers|api|imagescaler)-rw'
     discovery.update({'pooled': True}, dnsdisc=mw_records, name=dc_to)
     for obj in discovery.get(dnsdisc=mw_records, name=dc_to):
         if not obj.pooled:
