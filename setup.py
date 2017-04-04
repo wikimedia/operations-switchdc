@@ -15,7 +15,7 @@ setup(
         ],
     },
     extras_require={'test': test_requires},
-    install_requires=['pyyaml',  'redis', 'requests'],
+    install_requires=['pyyaml',  'redis', 'requests', 'dnspython'],
     test_requires=test_requires,
     name='switchdc',
     packages=find_packages(),
