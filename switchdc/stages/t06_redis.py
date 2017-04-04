@@ -10,8 +10,8 @@ from switchdc.stages import get_module_config, get_module_config_dir
 
 __title__ = 'Switch the Redis replication'
 
-config = get_module_config('t05_redis')
-config_dir = get_module_config_dir('t05_redis')
+config = get_module_config(__name__)
+config_dir = get_module_config_dir(__name__)
 
 REDIS_PASSWORD = config.get('redis_password', None)
 

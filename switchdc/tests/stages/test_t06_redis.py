@@ -4,7 +4,7 @@ import unittest
 import mock
 import redis
 
-import switchdc.stages.t05_redis as stage
+import switchdc.stages.t06_redis as stage
 
 from switchdc import SwitchdcError
 from switchdc.lib.remote import RemoteExecutionError
@@ -16,13 +16,13 @@ class TestRedisBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # TODO: fix switchdc.remote and switchdc.logger to be more test-friendly
-        stage.config_dir = os.path.join(base_config_dir, 'stages.d', 't05_redis')
+        stage.config_dir = os.path.join(base_config_dir, 'stages.d', 't06_redis')
         stage.config = {}
-        cls.docker = DockerManager(base_config_dir, 't05_redis', tag='0.1')
+        cls.docker = DockerManager(base_config_dir, 't06_redis', tag='0.1')
         # Start two redis instances in docker containers and expose them on ports
         # 16379 and 16380 on localhost
-        cls.docker.run('t05_redis-1', ports={'6379/tcp': 16379}, detach=True)
-        cls.docker.run('t05_redis-2', ports={'6379/tcp': 16380}, detach=True)
+        cls.docker.run('t06_redis-1', ports={'6379/tcp': 16379}, detach=True)
+        cls.docker.run('t06_redis-2', ports={'6379/tcp': 16380}, detach=True)
 
     @classmethod
     def tearDownClass(cls):
@@ -94,7 +94,7 @@ class TestRedisShards(TestRedisBase):
         # raise no error as all instances should already be masters
         self.rs.stop_replica('to')
 
-    @mock.patch('switchdc.stages.t05_redis.RedisInstance.stop_replica')
+    @mock.patch('switchdc.stages.t06_redis.RedisInstance.stop_replica')
     def test_stop_replica_failures(self, mock_replica):
         # now let's try to mud the waters and see what happens when errors occur
         mock_replica.side_effect = Exception("I know you hate this")
@@ -107,7 +107,7 @@ class TestRedisShards(TestRedisBase):
             self.assertFalse(inst.is_master)
             self.assertEqual(inst.slave_of, str(self.rs.shards['to'][shard]))
         self.rs.stop_replica('from')
-        with mock.patch('switchdc.stages.t05_redis.RedisInstance.stop_replica') as repl:
+        with mock.patch('switchdc.stages.t06_redis.RedisInstance.stop_replica') as repl:
             repl.side_effect = Exception("I know you hate this")
             self.assertRaises(Exception, self.rs.start_replica, 'from')
         self.rs.stop_replica('from')
@@ -115,7 +115,7 @@ class TestRedisShards(TestRedisBase):
 
 class TestStage(TestRedisBase):
 
-    @mock.patch('switchdc.stages.t05_redis.Remote.sync')
+    @mock.patch('switchdc.stages.t06_redis.Remote.sync')
     def test_execute(self, mock_remote):
         mock_remote.return_value = 0
         self.assertIsNone(stage.execute('from', 'to'))
@@ -123,7 +123,7 @@ class TestStage(TestRedisBase):
         self.assertTrue(self.red_to.is_master)
         self.assertEqual(self.red_from.slave_of, str(self.red_to))
 
-    @mock.patch('switchdc.stages.t05_redis.Remote.sync')
+    @mock.patch('switchdc.stages.t06_redis.Remote.sync')
     def test_execute_cumin_fail(self, mock_remote):
         mock_remote.side_effect = RemoteExecutionError(1)
         with self.assertRaises(RemoteExecutionError) as e:
@@ -133,10 +133,10 @@ class TestStage(TestRedisBase):
         self.assertTrue(self.red_from.is_master)
         self.assertEqual(self.red_to.slave_of, str(self.red_from))
 
-    @mock.patch('switchdc.stages.t05_redis.Remote.sync')
+    @mock.patch('switchdc.stages.t06_redis.Remote.sync')
     def test_execute_redis_fail(self, mock_remote):
         mock_remote.return_value = 0
-        with mock.patch('switchdc.stages.t05_redis.RedisInstance.stop_replica') as m:
+        with mock.patch('switchdc.stages.t06_redis.RedisInstance.stop_replica') as m:
             m.side_effect = ValueError("Bad, sorry")
             with self.assertRaisesRegexp(SwitchdcError, '3'):
                 stage.execute('from', 'to')
