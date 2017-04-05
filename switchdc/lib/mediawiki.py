@@ -33,6 +33,6 @@ def scap_sync_config_file(filename, message):
     """
     remote = Remote()
     remote.select('R:Class = Deployment::Rsync and R:Class%cron_ensure = absent')
-    command = 'su - {user} -c \'scap sync-file wmf-config/{filename}.php "{message}"\''.format(
+    command = 'su - {user} -c \'scap sync-file --force wmf-config/{filename}.php "{message}"\''.format(
         user=os.getlogin(), filename=filename, message=message)
     remote.sync(command)
