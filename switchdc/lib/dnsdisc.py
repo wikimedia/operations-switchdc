@@ -18,7 +18,7 @@ class DiscoveryTTL(object):
         self.records = records
 
     def update(self, expected):
-        dnsdisc = '({regexp})'.format(regexp=self.records.join('|'))
+        dnsdisc = '({regexp})'.format(regexp='|'.join(self.records))
         logger.info("Reducing the TTL of {} to {} seconds".format(dnsdisc, expected))
         self.discovery.update({'ttl': expected}, dnsdisc=dnsdisc)
 
