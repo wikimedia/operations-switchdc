@@ -55,6 +55,7 @@ def setup_irc(config):
     if irc_logger.handlers:
         return
     irc_logger.addHandler(IRCSocketHandler(config['tcpircbot_host'], config['tcpircbot_port']))
+    irc_logger.setLevel(logging.INFO)
 
 
 def setup_logging():
