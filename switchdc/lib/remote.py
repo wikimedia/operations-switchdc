@@ -5,7 +5,6 @@ from cumin.query import QueryBuilder
 from cumin.transport import Transport
 
 from switchdc import SwitchdcError
-from switchdc.lib import puppet
 from switchdc.log import logger
 
 
@@ -77,14 +76,6 @@ class Remote(object):
             return rc
 
         raise RemoteExecutionError(rc)
-
-    def puppet_run(self, **kwargs):
-        """
-        Special method to run puppet ensuring a reasonable batch size
-        """
-        if 'batch_size' not in kwargs:
-            kwargs['batch_size'] = 20
-        return self.sync(puppet.get_agent_run_command(), **kwargs)
 
     @property
     def hosts(self):

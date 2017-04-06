@@ -1,6 +1,5 @@
 from switchdc.lib.remote import Remote
 
-
 __title__ = "Rolling restart parsoid in eqiad and codfw"
 
 
