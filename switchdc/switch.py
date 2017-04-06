@@ -74,7 +74,7 @@ def generate_menu(dc_from, dc_to):
     """
     menu = Menu('Datacenter switchover automation')
     stage = '00'
-    submenu = None
+    submenu = Menu('Stage 00')
 
     for module_file in sorted(glob.glob(os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'stages', 't[0-9][0-9]_*.py'))):
