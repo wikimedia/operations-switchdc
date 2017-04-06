@@ -10,4 +10,4 @@ def execute(dc_from, dc_to):
     maintenance = Remote.query('R:class = role::mediawiki::maintenance')
     remote.select(jobrunners | maintenance)
     logger.info("Disabling puppet on jobrunners, videoscalers")
-    remote.sync('/usr/local/bin/disable-puppet')
+    remote.sync('disable-puppet')
