@@ -61,7 +61,6 @@ def parse_args():
     parser.add_argument('--task', help='If specified, run this task only in an non-interactive way and exit')
     parser.add_argument(
         '--stage', help='If specified, run all the tasks of this stage in an non-interactive way and exit')
-
     return parser.parse_args()
 
 
@@ -109,10 +108,13 @@ def main():
     rc = 1
     if args.task is not None:
         # Run a single task in non-interactive mode
-        for item in menu.items[int(args.task[1:3]) - 1].items:
-            if item.name.split('.')[-1] == args.task:
-                rc = item.run()
-                break
+        # We can't know if the items list counts from 0 or 1,
+        # so let's just cycle through all menus
+        for submenu in menu.items:
+            for item in submenu.items:
+                if item.name.split('.')[-1] == args.task:
+                    rc = item.run()
+                    break
         else:
             print("Unable to find task '{task}'".format(task=args.task))
 
