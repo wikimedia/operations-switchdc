@@ -6,6 +6,8 @@ import pwd
 import socket
 import sys
 
+from switchdc import is_dry_run
+
 logger = logging.getLogger(__name__)
 irc_logger = logging.getLogger(__name__ + '_irc_announce')
 
@@ -38,6 +40,10 @@ class IRCSocketHandler(logging.Handler):
         """
         message = '!log switchdc ({user}@{host}) {msg}'.format(
             user=self.user, host=socket.gethostname(), msg=record.getMessage())
+
+        if is_dry_run():
+            log_dry_run(message)
+            return
 
         sock = None
         try:
