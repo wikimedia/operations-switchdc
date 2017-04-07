@@ -1,6 +1,7 @@
 import argparse
 import glob
 import importlib
+import logging
 import os
 import sys
 
@@ -108,7 +109,7 @@ def main():
     args = parse_args()
     if args.dry_run:
         os.environ['SWITCHDC_DRY_RUN'] = '1'
-
+        log.irc_logger.setLevel(logging.WARN)
     menu = generate_menu(args.dc_from, args.dc_to)
 
     rc = 1

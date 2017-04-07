@@ -25,4 +25,4 @@ def execute(dc_from, dc_to):
 
     # Verify that the crontab has entries
     remote.select(maintenance)
-    remote.sync('test "$(crontab -u www-data -l | sed -r \'^(#|$)/d\')"', is_safe=True)
+    remote.sync('test "$(crontab -u www-data -l | sed -r \'/^(#|$)/d\')"', is_safe=True)

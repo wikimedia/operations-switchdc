@@ -22,7 +22,7 @@ def execute(dc_from, dc_to):
 
     # verify
     remote.select(jobrunners)
-    remote.async('! service jobrunner status', '! service jobchron status', is_safe=True)
+    remote.async('! service jobrunner status > /dev/null', '! service jobchron status > /dev/null', is_safe=True)
 
     # 2: disable and kill cronjobs
     logger.info('Disabling MediaWiki cronjobs in %s', dc_from)

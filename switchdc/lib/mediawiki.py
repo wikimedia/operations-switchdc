@@ -14,7 +14,7 @@ def check_config_line(filename, expected):
     filename -- filename without extension of wmf-config
     expected -- string expected to be found in the configuration file
     """
-    noc_server = Remote.query('R:Class = Role::Noc::Site')[0]
+    noc_server = Remote.query('R:Class = Role::Noc::Site').pop()
     try:
         mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename),
                                 headers={'Host': 'noc.wikimedia.org'})
