@@ -1,6 +1,6 @@
-from switchdc import SwitchdcError
+from switchdc import is_dry_run, SwitchdcError
 from switchdc.lib.remote import Remote
-from switchdc.log import logger
+from switchdc.log import log_dry_run, logger
 
 CORE_SHARDS = ('s1', 's2', 's3', 's4', 's5', 's6', 's7', 'x1', 'es2', 'es3')
 
@@ -44,7 +44,11 @@ def set_core_masters_readonly(dc, ro):
     ro -- boolean to decide whether the read-only mode should be set or removed.
     """
     remote = get_db_remote(dc, group='core', role='master')
-    remote.sync(get_query_command('SET GLOBAL read_only={ro}'.format(ro=ro)))
+    command = get_query_command('SET GLOBAL read_only={ro}'.format(ro=ro))
+    if is_dry_run():
+        log_dry_run("Query command '{command}' on hosts: {hosts}".format(command=command, hosts=remote.hosts))
+    else:
+        remote.sync(command)
 
 
 def verify_core_masters_readonly(dc, ro):
@@ -56,12 +60,18 @@ def verify_core_masters_readonly(dc, ro):
     """
     remote = get_db_remote(dc, group='core', role='master')
     remote.sync(get_query_command('SELECT @@global.read_only'))
-
+    expected = str(int(ro))
     failed = False
+
     for nodeset, output in remote.worker.get_results():
-        if output.message() != str(int(ro)):
+        if is_dry_run():
+            log_dry_run("Read-only for hosts '{hosts}' is '{current}', expected '{expected}'".format(
+                hosts=remote.hosts, current=output.message(), expected=expected))
+            continue
+
+        if output.message() != expected:
             logger.error("Expected output to be '{expected}', got '{output}' for hosts {hosts}".format(
-                expected=str(int(ro)), output=output, hosts=list(nodeset)))
+                expected=expected, output=output, hosts=list(nodeset)))
             failed = True
 
     if failed:

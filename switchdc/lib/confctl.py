@@ -1,10 +1,10 @@
 import re
 
-from conftool import configuration, loader, kvobject
+from conftool import configuration, kvobject, loader
 from conftool.drivers import BackendError
 
-from switchdc import SwitchdcError
-from switchdc.log import logger
+from switchdc import is_dry_run, SwitchdcError
+from switchdc.log import log_dry_run, logger
 
 
 class ConfigError(SwitchdcError):
@@ -34,7 +34,14 @@ class Confctl(object):
         Example:
           confctl.update({'pooled': False}, service='appservers-.*', name='eqiad')
         """
+        if is_dry_run():
+            log_dry_run("Conftool matching tags {tags}".format(tags=tags))
+
         for obj in self._select(tags):
+            if is_dry_run():
+                log_dry_run("Not updating conftool: {obj} -> {changed}".format(obj=obj, changed=changed))
+                continue
+
             try:
                 obj.update(changed)
             except BackendError as e:
@@ -45,8 +52,6 @@ class Confctl(object):
                 raise ConfigError(3)
 
     def get(self, **tags):
-        """
-        Gets conftool objects corresponding to the selection
-        """
+        """Gets conftool objects corresponding to the selection."""
         for obj in self._select(tags):
             yield obj

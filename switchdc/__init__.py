@@ -35,3 +35,11 @@ def get_config(config_path):
         config = {}
 
     return config
+
+
+def is_dry_run():
+    return os.getenv('SWITCHDC_DRY_RUN') == '1'
+
+
+def get_reason(dc_from, dc_to):
+    return 'Switchdc from {dc_from} to {dc_to}'.format(dc_from=dc_from, dc_to=dc_to)

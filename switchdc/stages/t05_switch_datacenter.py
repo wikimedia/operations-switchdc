@@ -1,4 +1,4 @@
-from switchdc import SwitchdcError
+from switchdc import is_dry_run, SwitchdcError
 from switchdc.lib import mediawiki
 from switchdc.lib.confctl import Confctl
 from switchdc.log import logger
@@ -14,7 +14,7 @@ def execute(dc_from, dc_to):
     mw_records = '(appservers|api|imagescaler)-rw'
     discovery.update({'pooled': True}, dnsdisc=mw_records, name=dc_to)
     for obj in discovery.get(dnsdisc=mw_records, name=dc_to):
-        if not obj.pooled:
+        if not obj.pooled and not is_dry_run():
             logger.error("DNS discovery record %s is not pooled", obj.key)
             raise SwitchdcError(1)
 
@@ -31,6 +31,6 @@ def execute(dc_from, dc_to):
     # 3: switch off the old dc in conftool so that DNS discovery will be fixed
     discovery.update({'pooled': False}, dnsdisc=mw_records, name=dc_from)
     for obj in discovery.get(dnsdisc=mw_records, name=dc_from):
-        if obj.pooled:
+        if obj.pooled and not is_dry_run():
             logger.error("DNS discovery record %s is still pooled", obj.key)
             raise SwitchdcError(1)

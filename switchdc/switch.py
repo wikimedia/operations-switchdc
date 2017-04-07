@@ -61,6 +61,9 @@ def parse_args():
     parser.add_argument('--task', help='If specified, run this task only in an non-interactive way and exit')
     parser.add_argument(
         '--stage', help='If specified, run all the tasks of this stage in an non-interactive way and exit')
+    parser.add_argument(
+        '--dry-run', action='store_true', help='Run in dry-run mode, only RO commands will be executed')
+
     return parser.parse_args()
 
 
@@ -103,6 +106,9 @@ def main():
     if {'tcpircbot_host', 'tcpircbot_port'} <= set(config):
         log.setup_irc(config)
     args = parse_args()
+    if args.dry_run:
+        os.environ['SWITCHDC_DRY_RUN'] = '1'
+
     menu = generate_menu(args.dc_from, args.dc_to)
 
     rc = 1

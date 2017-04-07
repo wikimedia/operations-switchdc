@@ -1,9 +1,9 @@
 import dns.resolver
 
-from switchdc import SwitchdcError
+from switchdc import is_dry_run, SwitchdcError
 from switchdc.lib.confctl import Confctl
 from switchdc.lib.remote import Remote
-from switchdc.log import logger
+from switchdc.log import log_dry_run, logger
 
 
 class DiscoveryTTL(object):
@@ -17,15 +17,22 @@ class DiscoveryTTL(object):
             self.resolvers[nameserver] = resolver
         self.records = records
 
-    def update(self, expected):
+    def update(self, ttl):
+        # DRY-RUN handled by confctl
         dnsdisc = '({regexp})'.format(regexp='|'.join(self.records))
-        logger.info("Reducing the TTL of {} to {} seconds".format(dnsdisc, expected))
-        self.discovery.update({'ttl': expected}, dnsdisc=dnsdisc)
+        logger.info("Reducing the TTL of {dnsdisc} to {ttl} seconds".format(dnsdisc=dnsdisc, ttl=ttl))
+        self.discovery.update({'ttl': ttl}, dnsdisc=dnsdisc)
 
     def check(self, expected):
         for nameserver, resolver in self.resolvers.items():
             for record in self.records:
                 answer = resolver.query('{}.discovery.wmnet'.format(record))
+
+                if is_dry_run():
+                    log_dry_run("{ns}:{rec}: {ip} TTL {ttl}".format(
+                        ns=nameserver, rec=record, ip=[r.address for r in answer][0], ttl=answer.ttl))
+                    continue
+
                 if answer.ttl != expected:
                     logger.error(
                         "TTL of {}.discovery.wmnet record on {} is {}".format(record, nameserver, answer.ttl))

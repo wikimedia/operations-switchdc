@@ -1,4 +1,4 @@
-from switchdc import SwitchdcError
+from switchdc import get_reason, SwitchdcError
 from switchdc.lib.remote import Remote
 from switchdc.log import logger
 
@@ -15,13 +15,13 @@ def execute(dc_from, dc_to):
     to_servers = Remote.query(dc_query.format(dc_to))
     from_servers = Remote.query(dc_query.format(dc_from))
     remote.select(to_servers | from_servers)
-    remote.sync('disable-puppet')
-    print 'Please puppet-merge the varnish change, and type "merged"'
+    remote.sync('disable-puppet "{message}"'.format(message=get_reason(dc_from, dc_to)))
+    print('Please puppet-merge the varnish change, and type "merged"')
     resp = None
 
     for _ in xrange(3):
         resp = raw_input('> ')
-        if resp == "merged":
+        if resp == 'merged':
             break
         else:
             print 'Invalid response, please type "merged"'
@@ -30,9 +30,9 @@ def execute(dc_from, dc_to):
 
     logger.info('Running puppet in {dc}'.format(dc=dc_to))
     remote.select(to_servers)
-    remote.sync('run-puppet-agent --force')
+    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to)))
     logger.info('Varnish traffic is now active-active')
     logger.info('Running puppet in {dc}'.format(dc=dc_from))
     remote.select(from_servers)
-    remote.sync('run-puppet-agent --force')
+    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to)))
     logger.info('Varnish traffic is now active only in {dc}'.format(dc=dc_to))

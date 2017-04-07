@@ -22,7 +22,7 @@ def execute(dc_from, dc_to):
 
     # verify
     remote.select(jobrunners)
-    remote.async('! service jobrunner status', '! service jobchron status')
+    remote.async('! service jobrunner status', '! service jobchron status', is_safe=True)
 
     # 2: disable and kill cronjobs
     logger.info('Disabling MediaWiki cronjobs in %s', dc_from)
@@ -32,11 +32,11 @@ def execute(dc_from, dc_to):
         'killall -9 -r php')
 
     # Verify that the crontab has no entries
-    remote.sync('test -z "$(crontab -u www-data -l | sed -r  \'/^(#|$)/d\')"')
+    remote.sync('test -z "$(crontab -u www-data -l | sed -r  \'/^(#|$)/d\')"', is_safe=True)
 
     # We just log an error, don't actually report a failure to the system. We can live with this.
     try:
-        remote.sync('pgrep php')
+        remote.sync('pgrep php', is_safe=True)
         logger.error('Stray php processes still present on the maintenance host, please check')
     except RemoteExecutionError:
         pass

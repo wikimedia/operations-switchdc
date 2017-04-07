@@ -1,7 +1,10 @@
+from __future__ import print_function
+
 import logging
 import os
 import pwd
 import socket
+import sys
 
 logger = logging.getLogger(__name__)
 irc_logger = logging.getLogger(__name__ + '_irc_announce')
@@ -67,3 +70,13 @@ def setup_logging():
     logger.addHandler(_log_handler)
     logger.raiseExceptions = False
     logger.setLevel(logging.INFO)
+
+
+def stderr(message):
+    """Print a message to stderr."""
+    print(message, file=sys.stderr)
+
+
+def log_dry_run(message):
+    """Print a DRY-RUN message using stderr."""
+    stderr('DRY-RUN: {message}'.format(message=message))

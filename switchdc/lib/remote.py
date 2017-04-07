@@ -1,11 +1,12 @@
 from collections import defaultdict
+
 import yaml
 
 from cumin.query import QueryBuilder
 from cumin.transport import Transport
 
-from switchdc import SwitchdcError
-from switchdc.log import logger
+from switchdc import is_dry_run, SwitchdcError
+from switchdc.log import log_dry_run, logger
 
 
 # Load cumin's configuration
@@ -50,7 +51,7 @@ class Remote(object):
     def sync(self, *commands, **kwargs):
         return self._run('sync', commands, **kwargs)
 
-    def _run(self, mode, commands, success_threshold=1.0, batch_size=None, batch_sleep=0):
+    def _run(self, mode, commands, success_threshold=1.0, batch_size=None, batch_sleep=0, is_safe=False):
         """Lower level Cumin's execution of commands on a list o hosts.
 
         Arguments:
@@ -61,6 +62,8 @@ class Remote(object):
         batch_size        -- the batch size to use in cumin. [optional, default: None]
         batch_sleep       -- the batch sleep in seconds to use in Cumin before scheduling the next host.
                              [optional, default: 0]
+        is_safe           -- the command is safe to run also in dry-run mode because it's a read-only command that
+                             don't change the state. [optional, default: False]
         """
         self.worker = Transport.new(cumin_config, logger)
         self.worker.hosts = self.hosts
@@ -71,11 +74,22 @@ class Remote(object):
         if batch_sleep > 0:
             self.worker.batch_sleep = batch_sleep
 
-        rc = self.worker.execute()
-        if rc == 0:
-            return rc
+        if is_dry_run():
+            log_prefix = 'Not executing'
+            if is_safe:
+                log_prefix = 'Executing'
+            log_dry_run("{prefix} commands '{commands}' on {num} hosts: {hosts}".format(
+                prefix=log_prefix, commands=commands, num=len(self.hosts), hosts=self.hosts))
 
-        raise RemoteExecutionError(rc)
+            if not is_safe:
+                return 0
+
+        rc = self.worker.execute()
+
+        if rc != 0 and not is_dry_run():
+            raise RemoteExecutionError(rc)
+
+        return 0
 
     @property
     def hosts(self):

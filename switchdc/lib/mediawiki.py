@@ -2,6 +2,8 @@ import os
 
 import requests
 
+from switchdc import is_dry_run
+from switchdc.log import log_dry_run
 from switchdc.lib.remote import Remote
 
 
@@ -12,16 +14,20 @@ def check_config_line(filename, expected):
     filename -- filename without extension of wmf-config
     expected -- string expected to be found in the configuration file
     """
-    remote = Remote()
-    remote.select('R:Class = Role::Noc::Site')
-    noc_server = remote.hosts[0]
+    noc_server = Remote.query('R:Class = Role::Noc::Site')[0]
     try:
         mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename),
                                 headers={'Host': 'noc.wikimedia.org'})
     except Exception:
         return False
 
-    return (expected in mwconfig.text)
+    found = (expected in mwconfig.text)
+    if is_dry_run():
+        log_dry_run('Found message in MediaWiki config? {found}. Expected message is:\n{expected}'.format(
+            found=found, expected=expected))
+        found = True
+
+    return found
 
 
 def scap_sync_config_file(filename, message):
