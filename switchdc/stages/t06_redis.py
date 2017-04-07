@@ -3,9 +3,8 @@ from collections import defaultdict
 import redis
 import yaml
 
-from switchdc import SwitchdcError
-from switchdc.lib.remote import Remote
-from switchdc.log import logger
+from switchdc import is_dry_run, SwitchdcError
+from switchdc.log import log_dry_run, logger
 from switchdc.stages import get_module_config, get_module_config_dir
 
 __title__ = 'Switch the Redis replication'
@@ -68,6 +67,7 @@ class RedisShards(object):
         with open('{}/{}.yaml'.format(
                 config_dir, cluster)) as fh:
             data = yaml.safe_load(fh)
+        self.dry_run = is_dry_run()
         for dc, shards in data.items():
             for shard, redis_data in shards.items():
                 self.shards[dc][shard] = RedisInstance(redis_data['host'],
@@ -91,12 +91,15 @@ class RedisShards(object):
                 logger.warning("Instance %s is already master, doing nothing", instance)
                 continue
             try:
-                instance.stop_replica()
+                if self.dry_run:
+                    log_dry_run("Would have stopped replica on {}".format(instance))
+                else:
+                    instance.stop_replica()
             except Exception as e:
                 logger.error("Generic failure while stopping replica on %s: %s", instance, e)
                 raise
 
-            if not instance.is_master:
+            if not instance.is_master and not self.dry_run:
                 logger.error("Instance %s is still a slave of %s, aborting",
                              instance, instance.slave_of)
                 raise RedisSwitchError(1)
@@ -106,26 +109,23 @@ class RedisShards(object):
             master = self.shards[dc_master][shard]
             if instance.slave_of == str(master):
                 logger.info("Replica already configured on %s", instance)
+            elif self.dry_run:
+                log_dry_run("Would have started replica {master} => {local}".format(master=master, local=instance))
             else:
                 instance.start_replica(master)
-            if instance.slave_of != str(master):
+            if instance.slave_of != str(master) and not self.dry_run:
                 logger.error("Replica on %s is not correctly configured", instance)
                 raise RedisSwitchError(2)
 
 
 def execute(dc_from, dc_to):
     """Switches the replication for both redis clusters for mediawiki (jobqueue and sessions)."""
-    all_remote = Remote()
     for cluster in ('jobqueue', 'sessions'):
         try:
             servers = RedisShards(cluster)
         except Exception, e:
             logger.error("Failed loading redis data: %s", e, exc_info=True)
             raise SwitchdcError(1)
-
-        # Disable puppet everywhere
-        all_remote.select(set(servers.hosts))
-        all_remote.sync('puppet agent --disable "switching over replication"')
 
         # Now let's disable replication
         logger.info("Stopping replication for all instances in %s, cluster %s", dc_to, cluster)
@@ -148,6 +148,3 @@ def execute(dc_from, dc_to):
             logger.error('Failed to start replication for all instances in %s, cluster %s',
                          dc_to, cluster, e.message)
             raise SwitchdcError(4)
-
-        # Enable puppet everywhere
-        all_remote.sync('puppet agent --enable')
