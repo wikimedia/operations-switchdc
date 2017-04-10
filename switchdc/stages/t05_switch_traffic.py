@@ -28,11 +28,12 @@ def execute(dc_from, dc_to):
     else:
         raise SwitchdcError(1)
 
-    logger.info('Running puppet in {dc}'.format(dc=dc_to))
     remote.select(to_servers)
+    logger.info('Running puppet in {dc}'.format(dc=dc_to))
     remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to)))
-    logger.info('Varnish traffic is now active-active')
-    logger.info('Running puppet in {dc}'.format(dc=dc_from))
+
+    logger.info('Varnish traffic is now active-active, running now puppet in {dc}'.format(dc=dc_from))
     remote.select(from_servers)
     remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to)))
+
     logger.info('Varnish traffic is now active only in {dc}'.format(dc=dc_to))

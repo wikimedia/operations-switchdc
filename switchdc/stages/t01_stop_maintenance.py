@@ -30,9 +30,7 @@ def execute(dc_from, dc_to):
     # 2: disable and kill cronjobs
     logger.info('Disabling MediaWiki cronjobs in {dc}'.format(dc=dc_from))
     remote.select('R:class = role::mediawiki::maintenance')
-    remote.async(
-        'crontab -u www-data -r', 'killall -r php', 'sleep 5',
-        'killall -9 -r php')
+    remote.async('crontab -u www-data -r', 'killall -r php', 'sleep 5', 'killall -9 -r php')
 
     # Verify that the crontab has no entries
     remote.sync('test -z "$(crontab -u www-data -l | sed -r  \'/^(#|$)/d\')"', is_safe=True)

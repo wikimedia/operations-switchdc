@@ -32,7 +32,7 @@ def execute(dc_from, dc_to):
     )
 
     remote = Remote()
-    remote.select(set(['wasat.codfw.wmnet']))  # TODO: convert to query once terbium is upgraded
+    remote.select({'wasat.codfw.wmnet'})  # TODO: convert to query once terbium is upgraded
     try:
         remote.sync(memc_warmup, appserver_warmup, api_warmup)
     except RemoteExecutionError as e:
