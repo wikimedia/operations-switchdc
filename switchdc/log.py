@@ -53,20 +53,6 @@ class IRCSocketHandler(logging.Handler):
                 sock.close()
 
 
-class OutputHandler(logging.StreamHandler):
-    """A StreamHandler to stderr that handles DRY-RUN mode."""
-
-    def emit(self, record):
-        """According to Python logging.Handler interface.
-
-        See https://docs.python.org/2/library/logging.html#handler-objects
-        """
-        if is_dry_run():
-            record = 'DRY-RUN: {message}'.format(message=record)
-
-        super(OutputHandler, self).emit(record)
-
-
 def setup_irc(config):
     """Setup the IRC logger instance."""
     # Only one handler should be present
@@ -92,8 +78,9 @@ def setup_logging():
     handler_extended.setLevel(logging.DEBUG)
 
     # Stderr logging
-    output_handler = OutputHandler()
+    output_handler = logging.StreamHandler()
     if is_dry_run():
+        output_handler.setFormatter(logging.Formatter(fmt='DRY-RUN: %(message)s'))
         output_handler.setLevel(logging.DEBUG)
     else:
         output_handler.setLevel(logging.INFO)
@@ -102,6 +89,7 @@ def setup_logging():
     logger.addHandler(handler_extended)
     logger.addHandler(output_handler)
     logger.raiseExceptions = False
+    logger.setLevel(logging.DEBUG)
 
 
 def log_task_start(prefix, message):
