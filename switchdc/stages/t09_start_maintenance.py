@@ -21,7 +21,7 @@ def execute(dc_from, dc_to):
 
     # Verify
     remote.select(jobrunners)
-    remote.async('service jobrunner status', 'service jobchron status', is_safe=True)
+    remote.async('service jobrunner status > /dev/null', 'service jobchron status > /dev/null', is_safe=True)
 
     # Verify that the crontab has entries
     remote.select(maintenance)
