@@ -141,7 +141,7 @@ def execute(dc_from, dc_to):
             raise SwitchdcError(3)
 
         logger.info('Starting replication for all instances in {dc}, cluster {cluster}'.format(
-            dc=dc_to, cluster=cluster))
+            dc=dc_from, cluster=cluster))
         try:
             servers.start_replica(dc_from, dc_to)
         except RedisSwitchError:
