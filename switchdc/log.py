@@ -62,6 +62,16 @@ def setup_irc(config):
     irc_logger.setLevel(logging.INFO)
 
 
+class OutputFilter(logging.Filter):
+    threshold = logging.ERROR
+
+    def filter(self, record):
+        if 'cumin' in record.pathname and record.levelno <= self.threshold:
+            return 0
+        else:
+            return 1
+
+
 def setup_logging():
     """Setup the logger instance."""
     # Default INFO logging
@@ -82,8 +92,10 @@ def setup_logging():
     if is_dry_run():
         output_handler.setFormatter(logging.Formatter(fmt='DRY-RUN: %(message)s'))
         output_handler.setLevel(logging.DEBUG)
+        OutputFilter.threshold = logging.WARN
     else:
         output_handler.setLevel(logging.INFO)
+    output_handler.addFilter(OutputFilter())
 
     logger.addHandler(handler)
     logger.addHandler(handler_extended)
