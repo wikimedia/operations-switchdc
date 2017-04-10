@@ -37,5 +37,5 @@ def get_config(config_path):
     return config
 
 
-def get_reason(dc_from, dc_to):
-    return 'Switchdc from {dc_from} to {dc_to}'.format(dc_from=dc_from, dc_to=dc_to)
+def get_reason():
+    return 'MediaWiki Switch datacenter'

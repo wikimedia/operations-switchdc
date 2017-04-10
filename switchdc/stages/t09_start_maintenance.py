@@ -14,7 +14,7 @@ def execute(dc_from, dc_to):
     maintenance = Remote.query('R:class = role::mediawiki::maintenance')
     all_jobs = videoscalers | jobrunners | maintenance
     remote.select(all_jobs)
-    command = 'run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to))
+    command = 'run-puppet-agent --enable "{message}"'.format(message=get_reason())
     remote.async(command, batch_size=30)
 
     # Verify

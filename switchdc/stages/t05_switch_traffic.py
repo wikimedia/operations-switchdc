@@ -15,7 +15,7 @@ def execute(dc_from, dc_to):
     to_servers = Remote.query(dc_query.format(dc_to))
     from_servers = Remote.query(dc_query.format(dc_from))
     remote.select(to_servers | from_servers)
-    remote.sync('disable-puppet "{message}"'.format(message=get_reason(dc_from, dc_to)))
+    remote.sync('disable-puppet "{message}"'.format(message=get_reason()))
     print('Please puppet-merge the varnish change, and type "merged"')
     resp = None
 
@@ -30,10 +30,10 @@ def execute(dc_from, dc_to):
 
     remote.select(to_servers)
     logger.info('Running puppet in {dc}'.format(dc=dc_to))
-    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to)))
+    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason()))
 
     logger.info('Varnish traffic is now active-active, running now puppet in {dc}'.format(dc=dc_from))
     remote.select(from_servers)
-    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason(dc_from, dc_to)))
+    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason()))
 
     logger.info('Varnish traffic is now active only in {dc}'.format(dc=dc_to))
