@@ -100,14 +100,18 @@ def generate_menu(dc_from, dc_to):
 
 def main():
     """Entry point, run the tool."""
-    log.setup_logging()
-    config = get_global_config()
-    if {'tcpircbot_host', 'tcpircbot_port'} <= set(config):
-        log.setup_irc(config)
     args = parse_args()
     if args.dry_run:
         os.environ['SWITCHDC_DRY_RUN'] = '1'
-        log.irc_logger.setLevel(logging.WARN)
+
+    log.setup_logging()
+    config = get_global_config()
+
+    if {'tcpircbot_host', 'tcpircbot_port'} <= set(config):
+        log.setup_irc(config)
+        if args.dry_run:
+            log.irc_logger.setLevel(logging.WARN)
+
     menu = generate_menu(args.dc_from, args.dc_to)
 
     rc = 1
