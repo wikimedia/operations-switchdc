@@ -12,7 +12,7 @@ def execute(dc_from, dc_to):
 
     # 1: Stop the jobrunners in dc_from
     remote = Remote(site=dc_from)
-    logger.info('Stopping jobrunners in %s', dc_from)
+    logger.info('Stopping jobrunners in {dc}'.format(dc=dc_from))
     jobrunners = Remote.query('R:class = role::mediawiki::jobrunner')
     videoscalers = Remote.query('R:class = role::mediawiki::videoscaler')
     all_jobs = videoscalers | jobrunners
@@ -28,7 +28,7 @@ def execute(dc_from, dc_to):
     remote.async('status jobrunner | grep -qv running', 'status jobchron | grep -qv running')
 
     # 2: disable and kill cronjobs
-    logger.info('Disabling MediaWiki cronjobs in %s', dc_from)
+    logger.info('Disabling MediaWiki cronjobs in {dc}'.format(dc=dc_from))
     remote.select('R:class = role::mediawiki::maintenance')
     remote.async(
         'crontab -u www-data -r', 'killall -r php', 'sleep 5',

@@ -90,19 +90,18 @@ class RedisShards(object):
     def stop_replica(self, dc):
         for instance in self.shards[dc].values():
             if instance.is_master:
-                logger.warning("Instance %s is already master, doing nothing", instance)
+                logger.debug("Instance %s is already master, doing nothing", instance)
                 continue
             try:
                 logger.debug("Stopping replica on {instance}".format(instance=instance))
                 if not self.dry_run:
                     instance.stop_replica()
             except Exception as e:
-                logger.error("Generic failure while stopping replica on %s: %s", instance, e)
+                logger.exception("Generic failure while stopping replica on %s: %s", instance, e)
                 raise
 
             if not instance.is_master and not self.dry_run:
-                logger.error("Instance %s is still a slave of %s, aborting",
-                             instance, instance.slave_of)
+                logger.exception("Instance %s is still a slave of %s, aborting", instance, instance.slave_of)
                 raise RedisSwitchError(1)
 
     def start_replica(self, dc, dc_master):
@@ -130,23 +129,24 @@ def execute(dc_from, dc_to):
             raise SwitchdcError(1)
 
         # Now let's disable replication
-        logger.info("Stopping replication for all instances in %s, cluster %s", dc_to, cluster)
+        logger.info('Stopping replication for all instances in {dc}, cluster {cluster}'.format(
+            dc=dc_to, cluster=cluster))
         try:
             servers.stop_replica(dc_to)
         except RedisSwitchError:
             raise
         except Exception as e:
-            logger.error('Failed to stop replication for all instances in %s, cluster %s: %s',
-                         dc_to, cluster, e.message)
+            logger.exception('Failed to stop replication for all instances in %s, cluster %s: %s',
+                             dc_to, cluster, e.message)
             raise SwitchdcError(3)
 
-        logger.info("Starting replication for all instances in %s, cluster %s",
-                    dc_from, cluster)
+        logger.info('Starting replication for all instances in {dc}, cluster {cluster}'.format(
+            dc=dc_to, cluster=cluster))
         try:
             servers.start_replica(dc_from, dc_to)
         except RedisSwitchError:
             raise
         except Exception:
-            logger.error('Failed to start replication for all instances in %s, cluster %s',
-                         dc_to, cluster, e.message)
+            logger.exception('Failed to start replication for all instances in %s, cluster %s',
+                             dc_to, cluster, e.message)
             raise SwitchdcError(4)

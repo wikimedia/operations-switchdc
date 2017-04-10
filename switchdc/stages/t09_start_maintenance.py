@@ -1,6 +1,5 @@
 from switchdc import get_reason
 from switchdc.lib.remote import Remote
-from switchdc.log import logger
 
 __title__ = "Start MediaWiki maintenance in the new master DC"
 
@@ -10,7 +9,6 @@ def execute(dc_from, dc_to):
     remote = Remote(site=dc_to)
 
     # 1: Run puppet on all jobrunner and maintenace machines in dc_to
-    logger.info('Starting jobrunners in %s', dc_to)
     jobrunners = Remote.query('R:class = role::mediawiki::jobrunner')
     videoscalers = Remote.query('R:class = role::mediawiki::videoscaler')
     maintenance = Remote.query('R:class = role::mediawiki::maintenance')

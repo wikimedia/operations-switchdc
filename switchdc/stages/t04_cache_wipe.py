@@ -10,17 +10,16 @@ config = get_module_config('t03_cache_wipe')
 
 def execute(dc_from, dc_to):
     """Wipes out the caches in the inactive datacenter, and then warms them up."""
-    logger.info("Waiting for the masters in %s to catch up", dc_to)
     mysql.ensure_core_masters_in_sync(dc_from, dc_to)
 
-    logger.info("Wiping out the MediaWiki caches in %s", dc_to)
+    logger.info('Wiping out the MediaWiki caches in {dc_to}'.format(dc_to=dc_to))
     to = Remote(site=dc_to)
     to.select('R:class = role::memcached')
     to.sync('service memcached restart')
     to.select('R:class = role::mediawiki::webserver')
     to.sync('service hhvm restart', batch_size=25)
 
-    logger.info("Now running the global warmup job")
+    logger.info('Running the global warmup job in {dc_to}'.format(dc_to=dc_to))
     warmup_dir = config.get('warmup_dir', '/var/lib/mediawiki-cache-warmup')
     base_warmup = "nodejs {wd}/warmup.js {wd}".format(wd=warmup_dir)
     memc_warmup = "{basecmd}/urls-cluster.txt spread appservers.svc.{dc}.wmnet".format(
@@ -37,4 +36,4 @@ def execute(dc_from, dc_to):
     try:
         remote.sync(memc_warmup, appserver_warmup, api_warmup)
     except RemoteExecutionError as e:
-        logger.warn('Cache warmup scripts ended with return status %s', e.message)
+        logger.exception('Cache warmup scripts ended with an error: {e}'.format(e.message))

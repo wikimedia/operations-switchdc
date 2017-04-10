@@ -55,4 +55,5 @@ class Confctl(object):
     def get(self, **tags):
         """Gets conftool objects corresponding to the selection."""
         for obj in self._select(tags):
+            logger.debug('Selected conftool object: {obj}'.format(obj=obj))
             yield obj

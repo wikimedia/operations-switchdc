@@ -7,8 +7,6 @@ __title__ = "set core DB masters in read-write mode"
 
 def execute(dc_from, dc_to):
     """Set all core DB masters (shards: s1-s7, x1, es2-es3) in read-write mode."""
-    logger.info('Set all core DB masters (shards: s1-s7, x1, es2-es3) in read-write mode in %s', dc_to)
-
     try:
         mysql.set_core_masters_readonly(dc_to, False)
         mysql.verify_core_masters_readonly(dc_to, False)

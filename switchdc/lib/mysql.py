@@ -59,6 +59,8 @@ def verify_core_masters_readonly(dc, ro):
     dc -- the name of the datacenter to filter for
     ro -- boolean to check whether the read-only mode should be set or not.
     """
+    logger.debug('Verifying core DB masters in {dc} have read-only={ro}'.format(dc=dc, ro=ro))
+
     remote = get_db_remote(dc, group='core', role='master')
     remote.sync(get_query_command('SELECT @@global.read_only'))
     expected = str(int(ro))
@@ -81,6 +83,7 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
     dc_from -- the name of the datacenter from where to get the master positions
     dc_to   -- the name of the datacenter where to check that they are in sync
     """
+    logger.debug('Waiting for the core DB masters in {dc_to} to catch up'.format(dc_to=dc_to))
     for shard in CORE_SHARDS:
         gtid = ''
         remote_from = get_db_remote(dc_from, group='core', role='master', shard=shard)
@@ -99,5 +102,5 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
 
         for nodeset, output in remote_to.worker.get_results():
             if output.message() != '0':  # See https://mariadb.com/kb/en/mariadb/master_gtid_wait/
-                logger.error("GTID not in sync after timeout for host {host}".format(host=list(nodeset)))
+                logger.error('GTID not in sync after timeout for host {host}'.format(host=list(nodeset)))
                 raise MysqlError(2)

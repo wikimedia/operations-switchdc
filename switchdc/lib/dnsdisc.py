@@ -21,10 +21,13 @@ class DiscoveryTTL(object):
     def update(self, ttl):
         # DRY-RUN handled by confctl
         dnsdisc = '({regexp})'.format(regexp='|'.join(self.records))
-        logger.info("Reducing the TTL of {dnsdisc} to {ttl} seconds".format(dnsdisc=dnsdisc, ttl=ttl))
+        logger.debug('Updating the TTL of {dnsdisc} to {ttl} seconds'.format(dnsdisc=dnsdisc, ttl=ttl))
         self.discovery.update({'ttl': ttl}, dnsdisc=dnsdisc)
 
     def check(self, expected):
+        logger.debug('Checking that TTL={ttl} for {records}.discovery.wmnet records'.format(
+            ttl=expected, records=self.records))
+
         for nameserver, resolver in self.resolvers.items():
             for record in self.records:
                 answer = resolver.query('{}.discovery.wmnet'.format(record))
@@ -35,6 +38,6 @@ class DiscoveryTTL(object):
                     continue
 
                 if answer.ttl != expected:
-                    logger.error(
-                        "TTL of {}.discovery.wmnet record on {} is {}".format(record, nameserver, answer.ttl))
+                    logger.error("Expected TTL '{expected}', got '{ttl}'".format(
+                        expected=expected, ttl=answer.ttl))
                     raise SwitchdcError(1)

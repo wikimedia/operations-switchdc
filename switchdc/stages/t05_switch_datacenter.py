@@ -16,7 +16,7 @@ def execute(dc_from, dc_to):
     discovery.update({'pooled': True}, dnsdisc=mw_records, name=dc_to)
     for obj in discovery.get(dnsdisc=mw_records, name=dc_to):
         if not obj.pooled and not is_dry_run():
-            logger.error("DNS discovery record %s is not pooled", obj.key)
+            logger.error('DNS discovery record {record} is not pooled'.format(record=obj.key))
             raise SwitchdcError(1)
 
     # 2: Deploy the MediaWiki change already merged on the deployment server in pre-flight phase
@@ -33,5 +33,5 @@ def execute(dc_from, dc_to):
     discovery.update({'pooled': False}, dnsdisc=mw_records, name=dc_from)
     for obj in discovery.get(dnsdisc=mw_records, name=dc_from):
         if obj.pooled and not is_dry_run():
-            logger.error("DNS discovery record %s is still pooled", obj.key)
+            logger.error('DNS discovery record {record} is still pooled'.format(record=obj.key))
             raise SwitchdcError(1)

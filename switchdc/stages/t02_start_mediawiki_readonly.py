@@ -25,5 +25,6 @@ def execute(dc_from, dc_to):
     if not mediawiki.check_config_line(filename, expected):
         mediawiki.scap_sync_config_file(filename, message)
         if not mediawiki.check_config_line(filename, expected):
-            logger.error('Read-only mode not changed in the MediaWiki config?')
+            logger.error('Read-only mode not changed in the MediaWiki config {filename}?'.format(
+                filename=filename))
             raise SwitchdcError(1)

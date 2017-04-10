@@ -26,6 +26,7 @@ class Remote(object):
             self._site = None
         else:
             self._site = Remote.query('R:Ganglia::Cluster%site = {}'.format(site))
+            logger.debug('Filtering host selection for site: {site}'.format(site=site))
 
         self._hosts = []
         self.worker = None
@@ -33,7 +34,10 @@ class Remote(object):
     @staticmethod
     def query(query_string):
         query = QueryBuilder(query_string, cumin_config, logger).build()
-        return set(query.execute())
+        hosts = set(query.execute())
+        logger.debug('Fetched hosts for query: {query}'.format(query=query_string))
+
+        return hosts
 
     def select(self, q):
         if type(q) is set:

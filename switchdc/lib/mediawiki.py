@@ -15,15 +15,16 @@ def check_config_line(filename, expected):
     expected -- string expected to be found in the configuration file
     """
     noc_server = Remote.query('R:Class = Role::Noc::Site').pop()
+    url = 'http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename)
+
     try:
-        mwconfig = requests.get('http://{noc}/conf/{filename}.php.txt'.format(noc=noc_server, filename=filename),
-                                headers={'Host': 'noc.wikimedia.org'})
+        mwconfig = requests.get(url, headers={'Host': 'noc.wikimedia.org'})
     except Exception:
         return False
 
     found = (expected in mwconfig.text)
-    logger.debug('Checked message (found={found}) in MediaWiki config {filename}:\n{message}'.format(
-        found=found, filename=filename, message=expected))
+    logger.debug('Checked message (found={found}) in MediaWiki config {url}:\n{message}'.format(
+        found=found, url=url, message=expected))
 
     return (found or is_dry_run())
 
@@ -35,6 +36,8 @@ def scap_sync_config_file(filename, message):
     filename -- filename without extension of wmf-config
     message  -- the message to use for the scap sync-file execution
     """
+    logger.debug('Syncing MediaWiki wmf-config/{filename}.php'.format(filename=filename))
+
     remote = Remote()
     remote.select('R:Class = Deployment::Rsync and R:Class%cron_ensure = absent')
     command = 'su - {user} -c \'scap sync-file --force wmf-config/{filename}.php "{message}"\''.format(
