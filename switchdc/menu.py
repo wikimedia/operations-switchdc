@@ -39,8 +39,13 @@ class Menu(object):
     def show(self):
         """Print the menu to stdout."""
         print(self.title)
+        if self.parent is None:
+            offset = 0
+        else:
+            offset = 1
+
         for i, item in enumerate(self.items):
-            print(' {i: >2} [{status}] {title}'.format(i=i + 1, title=item.title, status=item.status))
+            print(' {i: >2} [{status}] {title}'.format(i=i + offset, title=item.title, status=item.status))
 
         if self.parent is not None:
             print('  b - Back to parent menu')

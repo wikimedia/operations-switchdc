@@ -39,8 +39,13 @@ def run(menu, dc_from, dc_to):
             print('Invalid answer')
             continue
 
-        if index > 0 and index <= len(menu.items):
-            item = menu.items[index - 1]
+        if menu.parent is None:
+            offset = 0
+        else:
+            offset = 1
+
+        if index >= offset and index < len(menu.items) + offset:
+            item = menu.items[index - offset]
             if type(item) == Menu:
                 menu = item
             elif type(item) == Item:
