@@ -39,7 +39,7 @@ def execute(dc_from, dc_to):
 
     # We just log an error, don't actually report a failure to the system. We can live with this.
     try:
-        remote.sync('pgrep php', is_safe=True)
+        remote.sync('pgrep -c php', is_safe=True)
         logger.error('Stray php processes still present on the maintenance host, please check')
     except RemoteExecutionError:
         pass
