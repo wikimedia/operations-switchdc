@@ -63,10 +63,9 @@ def setup_irc(config):
 
 
 class OutputFilter(logging.Filter):
-    threshold = logging.ERROR
 
     def filter(self, record):
-        if 'cumin' in record.pathname and record.levelno <= self.threshold:
+        if 'cumin' in record.pathname:
             return 0
         else:
             return 1
@@ -92,7 +91,6 @@ def setup_logging():
     if is_dry_run():
         output_handler.setFormatter(logging.Formatter(fmt='DRY-RUN: %(message)s'))
         output_handler.setLevel(logging.DEBUG)
-        OutputFilter.threshold = logging.WARN
     else:
         output_handler.setLevel(logging.INFO)
     output_handler.addFilter(OutputFilter())

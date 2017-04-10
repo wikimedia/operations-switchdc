@@ -81,11 +81,11 @@ class Remote(object):
         if batch_sleep > 0:
             self.worker.batch_sleep = batch_sleep
 
-        if is_dry_run():
-            logger.debug("Executing commands {commands} on '{num}' hosts: {hosts}".format(
-                commands=commands, num=len(self.hosts), hosts=NodeSet.fromlist(self.hosts)))
-            if not is_safe:
-                return 0
+        logger.debug("Executing commands {commands} on '{num}' hosts: {hosts}".format(
+            commands=commands, num=len(self.hosts), hosts=NodeSet.fromlist(self.hosts)))
+
+        if is_dry_run() and not is_safe:
+            return 0
 
         rc = self.worker.execute()
 
