@@ -23,6 +23,8 @@ def execute(dc_from, dc_to):
     remote.select(jobrunners)
     remote.async('service jobrunner status > /dev/null', 'service jobchron status > /dev/null', is_safe=True)
 
+    remote.select(videoscalers)
+    remote.async('status jobrunner | grep -q running', 'status jobchron | grep -q running')
     # Verify that the crontab has entries
     remote.select(maintenance)
     remote.sync('test "$(crontab -u www-data -l | sed -r \'/^(#|$)/d\')"', is_safe=True)

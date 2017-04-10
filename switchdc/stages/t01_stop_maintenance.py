@@ -24,6 +24,9 @@ def execute(dc_from, dc_to):
     remote.select(jobrunners)
     remote.async('! service jobrunner status > /dev/null', '! service jobchron status > /dev/null', is_safe=True)
 
+    remote.select(videoscalers)
+    remote.async('status jobrunner | grep -qv running', 'status jobchron | grep -qv running')
+
     # 2: disable and kill cronjobs
     logger.info('Disabling MediaWiki cronjobs in %s', dc_from)
     remote.select('R:class = role::mediawiki::maintenance')
