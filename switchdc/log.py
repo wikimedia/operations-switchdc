@@ -4,7 +4,6 @@ import logging
 import os
 import pwd
 import socket
-import sys
 
 from switchdc.dry_run import is_dry_run
 
@@ -103,16 +102,6 @@ def setup_logging():
     logger.addHandler(handler_extended)
     logger.addHandler(output_handler)
     logger.raiseExceptions = False
-
-
-def stderr(message):
-    """Print a message to stderr."""
-    print(message, file=sys.stderr)
-
-
-def log_dry_run(message):
-    """Print a DRY-RUN message using stderr."""
-    stderr('DRY-RUN: {message}'.format(message=message))
 
 
 def log_task_start(prefix, message):

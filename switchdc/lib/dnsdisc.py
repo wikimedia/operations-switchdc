@@ -4,7 +4,7 @@ from switchdc import SwitchdcError
 from switchdc.dry_run import is_dry_run
 from switchdc.lib.confctl import Confctl
 from switchdc.lib.remote import Remote
-from switchdc.log import log_dry_run, logger
+from switchdc.log import logger
 
 
 class DiscoveryTTL(object):
@@ -28,10 +28,10 @@ class DiscoveryTTL(object):
         for nameserver, resolver in self.resolvers.items():
             for record in self.records:
                 answer = resolver.query('{}.discovery.wmnet'.format(record))
-
+                message = '{ns}:{rec}: {ip} TTL {ttl}'.format(
+                    ns=nameserver, rec=record, ip=[r.address for r in answer][0], ttl=answer.ttl)
+                logger.debug(message)
                 if is_dry_run():
-                    log_dry_run("{ns}:{rec}: {ip} TTL {ttl}".format(
-                        ns=nameserver, rec=record, ip=[r.address for r in answer][0], ttl=answer.ttl))
                     continue
 
                 if answer.ttl != expected:

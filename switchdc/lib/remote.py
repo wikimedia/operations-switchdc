@@ -7,7 +7,7 @@ from cumin.transport import Transport
 
 from switchdc import SwitchdcError
 from switchdc.dry_run import is_dry_run
-from switchdc.log import log_dry_run, logger
+from switchdc.log import logger
 
 
 # Load cumin's configuration
@@ -75,15 +75,10 @@ class Remote(object):
         if batch_sleep > 0:
             self.worker.batch_sleep = batch_sleep
 
-        if is_dry_run():
-            log_prefix = 'Not executing'
-            if is_safe:
-                log_prefix = 'Executing'
-            log_dry_run("{prefix} commands '{commands}' on {num} hosts: {hosts}".format(
-                prefix=log_prefix, commands=commands, num=len(self.hosts), hosts=self.hosts))
-
-            if not is_safe:
-                return 0
+        if is_dry_run() and not is_safe:
+            logger.debug("Executing commands {commands} on '{num}' hosts: {hosts}".format(
+                commands=commands, num=len(self.hosts), hosts=self.hosts))
+            return 0
 
         rc = self.worker.execute()
 

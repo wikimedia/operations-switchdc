@@ -1,5 +1,5 @@
 from switchdc import SwitchdcError
-from switchdc.log import irc_logger, logger
+from switchdc.log import log_task_end, log_task_start, logger
 
 
 class Menu(object):
@@ -102,9 +102,8 @@ class Item(object):
     def run(self):
         """Run the item calling the configured function."""
         params = ', '.join(self.args + ['='.join([str(k), str(v)]) for k, v in self.kwargs.iteritems()])
-        message = 'Executing task {name}({params}): {title}'.format(name=self.name, params=params, title=self.title)
-        logger.info(message)
-        irc_logger.info(message)
+        task_desc = '{name}({params})'.format(name=self.name, params=params)
+        log_task_start(task_desc, self.title)
 
         try:
             self.function(*self.args, **self.kwargs)
@@ -113,11 +112,15 @@ class Item(object):
             retval = e.message
         except Exception as e:
             retval = 99
-            logger.error('Failed to execute task {task}: {msg}'.format(task=self.name, msg=e.message), exc_info=True)
+            logger.exception('Failed to execute task {task}: {msg}'.format(task=self.name, msg=e.message))
 
         if retval == 0:
             self.status = self.success
+            message = 'Successfully completed'
         else:
             self.status = self.failed
+            message = 'Failed to execute'
+
+        log_task_end(task_desc, message)
 
         return retval

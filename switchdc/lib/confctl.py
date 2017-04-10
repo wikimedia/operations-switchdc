@@ -5,7 +5,7 @@ from conftool.drivers import BackendError
 
 from switchdc import SwitchdcError
 from switchdc.dry_run import is_dry_run
-from switchdc.log import log_dry_run, logger
+from switchdc.log import logger
 
 
 class ConfigError(SwitchdcError):
@@ -35,12 +35,12 @@ class Confctl(object):
         Example:
           confctl.update({'pooled': False}, service='appservers-.*', name='eqiad')
         """
-        if is_dry_run():
-            log_dry_run("Conftool matching tags {tags}".format(tags=tags))
+        logger.debug('Updating conftool matching tags: {tags}'.format(tags=tags))
 
         for obj in self._select(tags):
+            logger.debug('Updating conftool: {obj} -> {changed}'.format(obj=obj, changed=changed))
+
             if is_dry_run():
-                log_dry_run("Not updating conftool: {obj} -> {changed}".format(obj=obj, changed=changed))
                 continue
 
             try:

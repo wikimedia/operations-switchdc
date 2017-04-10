@@ -5,7 +5,7 @@ import yaml
 
 from switchdc import SwitchdcError
 from switchdc.dry_run import is_dry_run
-from switchdc.log import log_dry_run, logger
+from switchdc.log import logger
 from switchdc.stages import get_module_config, get_module_config_dir
 
 __title__ = 'Switch the Redis replication'
@@ -93,9 +93,8 @@ class RedisShards(object):
                 logger.warning("Instance %s is already master, doing nothing", instance)
                 continue
             try:
-                if self.dry_run:
-                    log_dry_run("Would have stopped replica on {}".format(instance))
-                else:
+                logger.debug("Stopping replica on {instance}".format(instance=instance))
+                if not self.dry_run:
                     instance.stop_replica()
             except Exception as e:
                 logger.error("Generic failure while stopping replica on %s: %s", instance, e)
@@ -110,11 +109,12 @@ class RedisShards(object):
         for shard, instance in self.shards[dc].items():
             master = self.shards[dc_master][shard]
             if instance.slave_of == str(master):
-                logger.info("Replica already configured on %s", instance)
-            elif self.dry_run:
-                log_dry_run("Would have started replica {master} => {local}".format(master=master, local=instance))
+                logger.debug('Replica already configured on {instance}'.format(instance=instance))
             else:
-                instance.start_replica(master)
+                logger.debug('Starting replica {master} => {local}'.format(master=master, local=instance))
+                if not self.dry_run:
+                    instance.start_replica(master)
+
             if instance.slave_of != str(master) and not self.dry_run:
                 logger.error("Replica on %s is not correctly configured", instance)
                 raise RedisSwitchError(2)
