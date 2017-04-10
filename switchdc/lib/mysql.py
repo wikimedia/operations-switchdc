@@ -48,8 +48,7 @@ def set_core_masters_readonly(dc, ro):
 
     remote = get_db_remote(dc, group='core', role='master')
     command = get_query_command('SET GLOBAL read_only={ro}'.format(ro=ro))
-    if not is_dry_run():
-        remote.sync(command)
+    remote.sync(command)
 
 
 def verify_core_masters_readonly(dc, ro):
@@ -62,7 +61,7 @@ def verify_core_masters_readonly(dc, ro):
     logger.debug('Verifying core DB masters in {dc} have read-only={ro}'.format(dc=dc, ro=ro))
 
     remote = get_db_remote(dc, group='core', role='master')
-    remote.sync(get_query_command('SELECT @@global.read_only'))
+    remote.sync(get_query_command('SELECT @@global.read_only'), is_safe=True)
     expected = str(int(ro))
     failed = False
 
@@ -72,7 +71,7 @@ def verify_core_masters_readonly(dc, ro):
                 expected=expected, output=output, hosts=list(nodeset)))
             failed = True
 
-    if failed:
+    if failed and not is_dry_run():
         raise MysqlError(1)
 
 
@@ -87,7 +86,7 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
     for shard in CORE_SHARDS:
         gtid = ''
         remote_from = get_db_remote(dc_from, group='core', role='master', shard=shard)
-        remote_from.sync(get_query_command('SELECT @@GLOBAL.gtid_binlog_pos'))
+        remote_from.sync(get_query_command('SELECT @@GLOBAL.gtid_binlog_pos'), is_safe=True)
 
         for nodeset, output in remote_from.worker.get_results():
             if list(nodeset) == remote_from.hosts:
@@ -98,7 +97,7 @@ def ensure_core_masters_in_sync(dc_from, dc_to):
 
         remote_to = get_db_remote(dc_to, group='core', role='master', shard=shard)
         query = "SELECT MASTER_GTID_WAIT('{gtid}', 30)".format(gtid=gtid)  # Wait for master is in sync, fail after 30
-        remote_to.sync(get_query_command(query))
+        remote_to.sync(get_query_command(query), is_safe=True)
 
         for nodeset, output in remote_to.worker.get_results():
             if output.message() != '0':  # See https://mariadb.com/kb/en/mariadb/master_gtid_wait/
