@@ -3,7 +3,8 @@ import re
 from conftool import configuration, kvobject, loader
 from conftool.drivers import BackendError
 
-from switchdc import is_dry_run, SwitchdcError
+from switchdc import SwitchdcError
+from switchdc.dry_run import is_dry_run
 from switchdc.log import log_dry_run, logger
 
 

@@ -2,7 +2,7 @@ import os
 
 import requests
 
-from switchdc import is_dry_run
+from switchdc.dry_run import is_dry_run
 from switchdc.log import log_dry_run
 from switchdc.lib.remote import Remote
 

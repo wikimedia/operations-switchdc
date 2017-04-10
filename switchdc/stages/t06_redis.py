@@ -3,7 +3,8 @@ from collections import defaultdict
 import redis
 import yaml
 
-from switchdc import is_dry_run, SwitchdcError
+from switchdc import SwitchdcError
+from switchdc.dry_run import is_dry_run
 from switchdc.log import log_dry_run, logger
 from switchdc.stages import get_module_config, get_module_config_dir
 

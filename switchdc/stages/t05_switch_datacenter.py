@@ -1,4 +1,5 @@
-from switchdc import is_dry_run, SwitchdcError
+from switchdc import SwitchdcError
+from switchdc.dry_run import is_dry_run
 from switchdc.lib import mediawiki
 from switchdc.lib.confctl import Confctl
 from switchdc.log import logger

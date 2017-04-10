@@ -1,6 +1,7 @@
 import dns.resolver
 
-from switchdc import is_dry_run, SwitchdcError
+from switchdc import SwitchdcError
+from switchdc.dry_run import is_dry_run
 from switchdc.lib.confctl import Confctl
 from switchdc.lib.remote import Remote
 from switchdc.log import log_dry_run, logger
