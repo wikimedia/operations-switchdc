@@ -44,9 +44,7 @@ def run(menu, dc_from, dc_to):
             if type(item) == Menu:
                 menu = item
             elif type(item) == Item:
-                rc = item.run()
-                if rc != 0:
-                    print('FAILED TO RUN TASK: {task}'.format(task=item.name))
+                item.run()
         else:
             print('==> Invalid input <==')
             continue
