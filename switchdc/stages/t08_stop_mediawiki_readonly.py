@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from switchdc import SwitchdcError
 from switchdc.lib import mediawiki
-from switchdc.log import logger
+from switchdc.log import irc_logger, logger
 
 __title__ = "Set MediaWiki in read-write mode (db_to config already merged and git pulled)"
 
@@ -28,3 +30,7 @@ def execute(dc_from, dc_to):
             logger.error('Read-only mode not changed in the MediaWiki config {filename}?'.format(
                         filename=filename))
             raise SwitchdcError(1)
+
+        log_message = 'MediaWiki read-only period ends at: {now}'.format(now=datetime.now())
+        logger.info(log_message)
+        irc_logger.info(log_message)
