@@ -2,7 +2,6 @@ import os
 
 import requests
 
-from switchdc.dry_run import is_dry_run
 from switchdc.log import logger
 from switchdc.lib.remote import Remote
 
@@ -26,7 +25,7 @@ def check_config_line(filename, expected):
     logger.debug('Checked message (found={found}) in MediaWiki config {url}:\n{message}'.format(
         found=found, url=url, message=expected))
 
-    return (found or is_dry_run())
+    return found
 
 
 def scap_sync_config_file(filename, message):

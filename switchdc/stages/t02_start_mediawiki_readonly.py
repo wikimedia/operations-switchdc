@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from switchdc import SwitchdcError
+from switchdc.dry_run import is_dry_run
 from switchdc.lib import mediawiki
 from switchdc.log import irc_logger, logger
 
@@ -29,7 +30,7 @@ def execute(dc_from, dc_to):
         logger.info(log_message)
         irc_logger.info(log_message)
         mediawiki.scap_sync_config_file(filename, message)
-        if not mediawiki.check_config_line(filename, expected):
+        if not mediawiki.check_config_line(filename, expected) and not is_dry_run():
             logger.error('Read-only mode not changed in the MediaWiki config {filename}?'.format(
                 filename=filename))
             raise SwitchdcError(1)

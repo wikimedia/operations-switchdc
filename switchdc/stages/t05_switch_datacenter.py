@@ -25,7 +25,7 @@ def execute(dc_from, dc_to):
     expected = "$wmfMasterDatacenter = '{dc_to}';".format(dc_to=dc_to)
     if not mediawiki.check_config_line(filename, expected):
         mediawiki.scap_sync_config_file(filename, message)
-        if not mediawiki.check_config_line(filename, expected):
+        if not mediawiki.check_config_line(filename, expected) and not is_dry_run():
             logger.error('Datacenter not changed in the MediaWiki config?')
             raise SwitchdcError(1)
 
