@@ -4,6 +4,7 @@ from switchdc.log import log_task_end, log_task_start, logger
 
 class Menu(object):
     """Menu class."""
+    DEFAULT_FIRST_ITEM = 1
 
     def __init__(self, title, parent=None):
         """Menu constructor
@@ -14,7 +15,7 @@ class Menu(object):
         """
         self.title = title
         self.parent = parent
-        self.items = []
+        self.items = {}
 
     @property
     def status(self):
@@ -22,15 +23,22 @@ class Menu(object):
         completed, total = Menu.calculate_status(self)
         return '{completed}/{total}'.format(completed=completed, total=total)
 
-    def append(self, item):
+    def append(self, item, idx=None):
         """Append an item or a submenu to this menu.
 
         Arguments:
         item -- the item to append
+        idx  -- optional the index at which this item will be found in the menu
         """
+        if idx is None:
+            if self.items:
+                idx = sorted(self.items.keys())[-1] + 1
+            else:
+                idx = self.DEFAULT_FIRST_ITEM
+
         if type(item) == Menu:
             item.parent = self
-        self.items.append(item)
+        self.items[idx] = item
 
     def run(self):
         """For menu run is equivalent to show."""
@@ -39,13 +47,10 @@ class Menu(object):
     def show(self):
         """Print the menu to stdout."""
         print(self.title)
-        if self.parent is None:
-            offset = 0
-        else:
-            offset = 1
 
-        for i, item in enumerate(self.items):
-            print(' {i: >2} [{status}] {title}'.format(i=i + offset, title=item.title, status=item.status))
+        for idx in sorted(self.items.keys()):
+            item = self.items[idx]
+            print(' {i: >2} [{status}] {title}'.format(i=idx, title=item.title, status=item.status))
 
         if self.parent is not None:
             print('  b - Back to parent menu')
@@ -61,7 +66,7 @@ class Menu(object):
         """
         completed = 0
         total = 0
-        for item in menu.items:
+        for item in menu.items.values():
             item_type = type(item)
             if item_type == Menu:
                 sub_completed, sub_total = Menu.calculate_status(item)
