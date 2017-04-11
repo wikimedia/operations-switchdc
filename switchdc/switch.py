@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+import urllib3
+
 from switchdc import get_global_config, log
 from switchdc.menu import Item, Menu
 
@@ -108,6 +110,7 @@ def main():
 
     menu = generate_menu(args.dc_from, args.dc_to)
 
+    urllib3.disable_warnings(category=urllib3.exceptions.SubjectAltNameWarning)
     rc = 1
     if args.task is not None:
         # Run a single task in non-interactive mode
