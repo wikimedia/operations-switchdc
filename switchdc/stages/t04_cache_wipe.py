@@ -24,10 +24,10 @@ def execute(dc_from, dc_to):
     base_warmup = "nodejs {wd}/warmup.js {wd}".format(wd=warmup_dir)
     memc_warmup = "{basecmd}/urls-cluster.txt spread appservers.svc.{dc}.wmnet".format(
         dc=dc_to, basecmd=base_warmup)
-    appserver_warmup = "{basecmd}/urls-server.txt clone {dc} appserver".format(
+    appserver_warmup = "{basecmd}/urls-server.txt clone appserver {dc}".format(
         dc=dc_to, basecmd=base_warmup
     )
-    api_warmup = "{basecmd}/urls-server.txt clone {dc} api_appserver".format(
+    api_warmup = "{basecmd}/urls-server.txt clone api_appserver {dc}".format(
         dc=dc_to, basecmd=base_warmup
     )
 
