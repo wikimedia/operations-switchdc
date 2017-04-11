@@ -31,6 +31,6 @@ def execute(dc_from, dc_to):
             logger.error('Read-only mode not changed in the MediaWiki config {filename}?'.format(filename=filename))
             raise SwitchdcError(1)
 
-        log_message = 'MediaWiki read-only period ends at: {now}'.format(now=datetime.now())
+        log_message = 'MediaWiki read-only period ends at: {now}'.format(now=datetime.utcnow())
         logger.info(log_message)
         irc_logger.info(log_message)

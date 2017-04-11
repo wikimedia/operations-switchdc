@@ -26,7 +26,7 @@ def execute(dc_from, dc_to):
 ],"""
 
     if not mediawiki.check_config_line(filename, expected):
-        log_message = 'MediaWiki read-only period starts at: {now}'.format(now=datetime.now())
+        log_message = 'MediaWiki read-only period starts at: {now}'.format(now=datetime.utcnow())
         logger.info(log_message)
         irc_logger.info(log_message)
         mediawiki.scap_sync_config_file(filename, message)
