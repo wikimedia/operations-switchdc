@@ -16,13 +16,13 @@ def execute(dc_from, dc_to):
     message = 'Set MediaWiki in read-only mode in datacenter {dc_from}'.format(dc_from=dc_from)
     filename = 'db-{dc_from}'.format(dc_from=dc_from)
     expected = """'readOnlyBySection' => [
-\t's1'      => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes',
-\t's2'      => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes',
-\t'DEFAULT' => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes', # s3
-\t's4'      => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes',
-\t's5'      => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes',
-\t's6'      => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes',
-\t's7'      => 'MediaWiki is in read-only mode for maintenance. Please try again in 15 minutes',
+\t's1'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
+\t's2'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
+\t'DEFAULT' => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes', # s3
+\t's4'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
+\t's5'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
+\t's6'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
+\t's7'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
 ],"""
 
     if not mediawiki.check_config_line(filename, expected):
