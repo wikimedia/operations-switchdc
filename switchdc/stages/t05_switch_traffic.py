@@ -17,26 +17,23 @@ def execute(dc_from, dc_to):
                 'not *.wikimedia.org')
     to_servers = Remote.query(dc_query.format(site=dc_to))
     from_servers = Remote.query(dc_query.format(site=dc_from))
-    remote.select(to_servers | from_servers)
-    remote.sync('disable-puppet "{message}"'.format(message=get_reason()))
-    print('Please puppet-merge the varnish change, and type "merged"')
-    resp = None
 
+    remote.select(to_servers)
+    logger.info('Running puppet on text caches in {dc}'.format(dc=dc_to))
+    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason()))
+
+    print('Please check that the puppet run was applied with the expected changes on all hosts, type "done" to proceed')
     for _ in xrange(3):
         resp = raw_input('> ')
-        if resp == 'merged':
+        if resp == 'done':
             break
-        else:
-            print 'Invalid response, please type "merged"'
+
+        print('Invalid response, please type "done" to proceed. After 3 wrong answers the task will be aborted.')
     else:
         raise SwitchdcError(1)
 
-    remote.select(to_servers)
-    logger.info('Running puppet in {dc}'.format(dc=dc_to))
-    remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason()))
-
-    logger.info('Varnish traffic is now active-active, running now puppet in {dc}'.format(dc=dc_from))
+    logger.info('Text caches traffic is now active-active, running puppet in {dc}'.format(dc=dc_from))
     remote.select(from_servers)
     remote.sync('run-puppet-agent --enable "{message}"'.format(message=get_reason()))
 
-    logger.info('Varnish traffic is now active only in {dc}'.format(dc=dc_to))
+    logger.info('Text caches traffic is now active only in {dc}'.format(dc=dc_to))
