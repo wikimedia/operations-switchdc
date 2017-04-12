@@ -12,6 +12,7 @@ def execute(dc_from, dc_to):
     """Wipes out the caches in the inactive datacenter, and then warms them up."""
     mysql.ensure_core_masters_in_sync(dc_from, dc_to)
 
+    logger.info('Replicas in {} are now in sync'.format(dc_to))
     logger.info('Wiping out the MediaWiki caches in {dc_to}'.format(dc_to=dc_to))
     to = Remote(site=dc_to)
     to.select('R:class = role::memcached')
@@ -27,13 +28,9 @@ def execute(dc_from, dc_to):
     appserver_warmup = "{basecmd}/urls-server.txt clone appserver {dc}".format(
         dc=dc_to, basecmd=base_warmup
     )
-    api_warmup = "{basecmd}/urls-server.txt clone api_appserver {dc}".format(
-        dc=dc_to, basecmd=base_warmup
-    )
-
     remote = Remote()
     remote.select({'wasat.codfw.wmnet'})  # TODO: convert to query once terbium is upgraded
     try:
-        remote.sync(memc_warmup, appserver_warmup, api_warmup)
+        remote.sync(memc_warmup, appserver_warmup)
     except RemoteExecutionError as e:
         logger.exception('Cache warmup scripts ended with an error: {}'.format(e.message))
