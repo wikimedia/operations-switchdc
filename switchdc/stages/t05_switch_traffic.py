@@ -11,9 +11,12 @@ def execute(dc_from, dc_to):
     cycling through an active-active status
     """
     remote = Remote()
-    dc_query = "R:class = profile::cumin::target and R:class%site = {} and R:class%cluster = cache_text"
-    to_servers = Remote.query(dc_query.format(dc_to))
-    from_servers = Remote.query(dc_query.format(dc_from))
+    # Exclude *.wikimedia.org hosts, all production cache hosts are *.$dc.wmnet with the exclusion of
+    # cp1008.wikimedia.org which is a special system used for testing.
+    dc_query = ('R:class = profile::cumin::target and R:class%site = {site} and R:class%cluster = cache_text and '
+                'not *.wikimedia.org')
+    to_servers = Remote.query(dc_query.format(site=dc_to))
+    from_servers = Remote.query(dc_query.format(site=dc_from))
     remote.select(to_servers | from_servers)
     remote.sync('disable-puppet "{message}"'.format(message=get_reason()))
     print('Please puppet-merge the varnish change, and type "merged"')
