@@ -30,10 +30,11 @@ def run(menu, dc_from, dc_to):
 
         if not answer:
             continue
-        elif answer == 'q':
+        elif answer == 'q' and menu.parent is None:
             break
-        elif answer == 'b':
+        elif answer == 'b' and menu.parent is not None:
             menu = menu.parent
+            continue
 
         try:
             index = int(answer)

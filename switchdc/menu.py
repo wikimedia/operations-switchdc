@@ -52,10 +52,10 @@ class Menu(object):
             item = self.items[idx]
             print(' {i: >2} [{status}] {title}'.format(i=idx, title=item.title, status=item.status))
 
-        if self.parent is not None:
+        if self.parent is None:
+            print('  q - Quit')
+        else:
             print('  b - Back to parent menu')
-
-        print('  q - Quit')
 
     @staticmethod
     def calculate_status(menu):
