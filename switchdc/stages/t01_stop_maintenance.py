@@ -13,18 +13,12 @@ def execute(dc_from, dc_to):
     # 1: Stop the jobrunners in dc_from
     remote = Remote(site=dc_from)
     logger.info('Stopping jobrunners in {dc}'.format(dc=dc_from))
-    jobrunners = Remote.query('R:class = role::mediawiki::jobrunner')
-    videoscalers = Remote.query('R:class = role::mediawiki::videoscaler')
-    all_jobs = videoscalers | jobrunners
-    remote.select(all_jobs)
-
+    remote.select('R:class = role::mediawiki::jobrunner')
     remote.async('service jobrunner stop', 'service jobchron stop', 'service hhvm restart')
-
-    # verify
-    remote.select(jobrunners)
     remote.async('! service jobrunner status > /dev/null', '! service jobchron status > /dev/null', is_safe=True)
 
-    remote.select(videoscalers)
+    remote.select('R:class = role::mediawiki::videoscaler')
+    remote.async('stop jobrunner || exit 0', 'stop jobchron || exit 0', 'service hhvm restart')
     remote.async('status jobrunner | grep -qv running', 'status jobchron | grep -qv running')
 
     # 2: disable and kill cronjobs
