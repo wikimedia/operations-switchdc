@@ -14,11 +14,14 @@ def execute(dc_from, dc_to):
     remote = Remote(site=dc_from)
     logger.info('Stopping jobrunners in {dc}'.format(dc=dc_from))
     remote.select('R:class = role::mediawiki::jobrunner')
-    remote.async('service jobrunner stop', 'service jobchron stop', 'service hhvm restart')
-    remote.async('! service jobrunner status > /dev/null', '! service jobchron status > /dev/null', is_safe=True)
+    # We wait for all jobs on HHVM on jobrunners to finish before proceeding
+    remote.async('service jobrunner stop', 'service jobchron stop',
+                 'while [ "$(hhvmadm /check-load)" -gt 1 ]; do sleep 1; done')
+    remote.async('! service jobrunner status > /dev/null', '! service jobchron status > /dev/null',  is_safe=True)
 
     remote.select('R:class = role::mediawiki::videoscaler')
-    remote.async('stop jobrunner || exit 0', 'stop jobchron || exit 0', 'service hhvm restart')
+    # On videoscalers we are forced to restart HHVM as transcodes can take a long time
+    remote.async('stop jobrunner || exit 0', 'stop jobchron || exit 0', 'restart hhvm')
     remote.async('status jobrunner | grep -qv running', 'status jobchron | grep -qv running')
 
     # 2: disable and kill cronjobs
