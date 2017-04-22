@@ -7,7 +7,7 @@ from switchdc.lib.remote import Remote
 from switchdc.log import logger
 
 
-class DiscoveryTTL(object):
+class Discovery(object):
     def __init__(self, *records):
         nameservers = Remote.query('R:class = role::authdns::server')
         self.resolvers = {}
@@ -18,26 +18,65 @@ class DiscoveryTTL(object):
             self.resolvers[nameserver] = resolver
         self.records = records
 
-    def update(self, ttl):
+    def update_ttl(self, ttl):
+        """Update the TTL for all records.
+
+        Arguments:
+        ttl -- the value of the new TTL
+        """
         # DRY-RUN handled by confctl
         dnsdisc = '({regexp})'.format(regexp='|'.join(self.records))
         logger.debug('Updating the TTL of {dnsdisc} to {ttl} seconds'.format(dnsdisc=dnsdisc, ttl=ttl))
         self.discovery.update({'ttl': ttl}, dnsdisc=dnsdisc)
 
-    def check(self, expected):
+    def check_ttl(self, expected):
+        """Check the TTL for all records.
+
+        Arguments:
+        ttl -- the expected TTL value
+        """
         logger.debug('Checking that TTL={ttl} for {records}.discovery.wmnet records'.format(
             ttl=expected, records=self.records))
 
-        for nameserver, resolver in self.resolvers.items():
-            for record in self.records:
+        for record in self.resolve():
+            if not is_dry_run() and record.ttl != expected:
+                logger.error("Expected TTL '{expected}', got '{ttl}'".format(expected=expected, ttl=record.ttl))
+                raise SwitchdcError(1)
+
+    def check_record(self, name, expected):
+        """Check that a record resolve to the expected IP.
+
+        Arguments:
+        name     -- the record to check the resolution for.
+        expected -- the expected record to compare the resolution to.
+        """
+        logger.debug('Checking that {name}.discovery.wmnet records matches {expected}'.format(
+            name=name, expected=expected))
+
+        # Getting the expected record from the first resolver
+        address = self.resolvers[self.resolvers.keys()[0]].query(expected)[0].address
+
+        for record in self.resolve(name=name):
+            if not is_dry_run() and record[0].address != address:
+                logger.error("Expected IP '{expected}', got '{address}'".format(
+                    expected=address, address=record[0].address))
+                raise SwitchdcError(1)
+
+    def resolve(self, name=None):
+        """Generator that yields the resolved records.
+
+        Arguments:
+        name -- optional record name to filter for.
+        """
+        if name is not None:
+            records = [name]
+        else:
+            records = self.records
+
+        for nameserver, resolver in self.resolvers.iteritems():
+            for record in records:
                 answer = resolver.query('{}.discovery.wmnet'.format(record))
                 message = '{ns}:{rec}: {ip} TTL {ttl}'.format(
-                    ns=nameserver, rec=record, ip=[r.address for r in answer][0], ttl=answer.ttl)
+                    ns=nameserver, rec=record, ip=answer[0].address, ttl=answer.ttl)
                 logger.debug(message)
-                if is_dry_run():
-                    continue
-
-                if answer.ttl != expected:
-                    logger.error("Expected TTL '{expected}', got '{ttl}'".format(
-                        expected=expected, ttl=answer.ttl))
-                    raise SwitchdcError(1)
+                yield answer
