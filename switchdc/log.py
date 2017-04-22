@@ -38,8 +38,8 @@ class IRCSocketHandler(logging.Handler):
 
         See https://docs.python.org/2/library/logging.html#handler-objects
         """
-        message = '!log switchdc ({user}@{host}) {msg}'.format(
-            user=self.user, host=socket.gethostname(), msg=record.getMessage())
+        message = '!log {msg} (switchdc/{user}@{host})'.format(
+            msg=record.getMessage(), user=self.user, host=socket.gethostname())
         sock = None
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -102,18 +102,33 @@ def setup_logging():
     logger.setLevel(logging.DEBUG)
 
 
-def log_task_start(prefix, message):
-    """Log the start of a task."""
-    _log_task('START', prefix, message)
+def log_task_start(message):
+    """Log the start of a task both on the logs and IRC.
+
+    Arguments:
+    message -- the message to be logged.
+    """
+    _log_task('START', message)
 
 
-def log_task_end(prefix, message):
-    """Log the end of a task."""
-    _log_task('END', prefix, message)
+def log_task_end(status, message):
+    """Log the start of a task both on the logs and IRC.
+
+    Arguments:
+    status  -- the final status of the task.
+    message -- the message to be logged.
+    """
+    _log_task('END ({status})'.format(status=status), message)
 
 
-def _log_task(action, prefix, message):
-    message = '{action} TASK - {prefix} {message}'.format(action=action, prefix=prefix, message=message)
+def _log_task(prefix, message):
+    """Log a task message both on the logs and IRC.
+
+    Arguments:
+    prefix  -- the prefix of the message.
+    message -- the message to be logged.
+    """
+    message = '{prefix} - {message}'.format(prefix=prefix, message=message)
 
     logger.info(message)
     if not is_dry_run():

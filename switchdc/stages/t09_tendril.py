@@ -3,7 +3,7 @@ from switchdc.lib import mysql
 from switchdc.lib.remote import Remote
 from switchdc.log import logger
 
-__title__ = "Update Tendril configuration for the new masters"
+__title__ = 'Update Tendril tree to start from the core DB masters in {dc_to}'
 
 
 def execute(dc_from, dc_to):

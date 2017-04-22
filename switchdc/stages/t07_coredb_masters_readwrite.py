@@ -2,7 +2,7 @@ from switchdc import SwitchdcError
 from switchdc.lib import mysql
 from switchdc.log import logger
 
-__title__ = "set core DB masters in read-write mode"
+__title__ = 'Set core DB masters in read-write mode in {dc_to}, ensure masters in {dc_from} are read-only'
 
 
 def execute(dc_from, dc_to):

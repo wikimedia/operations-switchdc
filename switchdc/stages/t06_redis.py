@@ -8,7 +8,7 @@ from switchdc.dry_run import is_dry_run
 from switchdc.log import logger
 from switchdc.stages import get_module_config, get_module_config_dir
 
-__title__ = 'Switch the Redis replication'
+__title__ = 'Switch the Redis masters from {dc_from} to {dc_to} and invert the replication'
 
 dirname = __name__.split('.')[-1]
 config = get_module_config(dirname)

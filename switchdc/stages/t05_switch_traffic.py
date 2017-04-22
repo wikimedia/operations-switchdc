@@ -2,7 +2,7 @@ from switchdc import get_reason, SwitchdcError
 from switchdc.lib.remote import Remote
 from switchdc.log import logger
 
-__title__ = "Switch traffic flow to the appservers in the new datacenter"
+__title__ = 'Switch traffic flow to the appservers from {dc_from} to {dc_to}'
 
 
 def execute(dc_from, dc_to):

@@ -2,7 +2,7 @@ from switchdc.lib.remote import Remote
 from switchdc.log import logger
 from switchdc.stages import get_module_config
 
-__title__ = "Example task description"
+__title__ = 'Example task description, migrates service from {dc_from} to {dc_to}'
 
 # Standard location for config files specific to this module:
 # ${CONFIG_DIR}/stages.d/t01_example

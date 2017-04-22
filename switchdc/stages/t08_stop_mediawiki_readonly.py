@@ -5,7 +5,7 @@ from switchdc.dry_run import is_dry_run
 from switchdc.lib import mediawiki
 from switchdc.log import irc_logger, logger
 
-__title__ = "Set MediaWiki in read-write mode (db_to config already merged and git pulled)"
+__title__ = 'Set MediaWiki in read-write mode in {dc_to} (db-{dc_to} config already merged and git pulled)'
 
 
 def execute(dc_from, dc_to):

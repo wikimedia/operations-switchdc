@@ -3,7 +3,7 @@ from switchdc.lib.remote import Remote, RemoteExecutionError
 from switchdc.log import logger
 from switchdc.stages import get_module_config
 
-__title__ = "wipe and warmup caches"
+__title__ = 'Wipe and warmup caches in {dc_from}'
 
 config = get_module_config('t03_cache_wipe')
 

@@ -1,7 +1,7 @@
 from switchdc import get_reason
 from switchdc.lib.remote import Remote
 
-__title__ = "Start MediaWiki maintenance in the new master DC"
+__title__ = 'Start MediaWiki jobrunners, videoscalers and maintenance in {dc_to}'
 
 
 def execute(dc_from, dc_to):

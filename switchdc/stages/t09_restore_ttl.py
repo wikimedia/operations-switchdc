@@ -2,7 +2,7 @@ import time
 
 from switchdc.lib.dnsdisc import DiscoveryTTL
 
-__title__ = "Restore the TTL of all the MediaWiki discovery records"
+__title__ = 'Restore the TTL of all the MediaWiki read-write discovery records'
 
 
 def execute(dc_from, dc_to):

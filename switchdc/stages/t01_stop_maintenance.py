@@ -1,7 +1,7 @@
 from switchdc.lib.remote import Remote, RemoteExecutionError
 from switchdc.log import logger
 
-__title__ = "Stop MediaWiki maintenance in the old master DC"
+__title__ = 'Stop MediaWiki jobrunners, videoscalers and maintenance in {dc_from}'
 
 
 def execute(dc_from, dc_to):

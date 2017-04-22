@@ -1,6 +1,6 @@
 from switchdc.lib.remote import Remote
 
-__title__ = "Rolling restart parsoid in eqiad and codfw"
+__title__ = 'Rolling restart of parsoid in {dc_from} and {dc_to}'
 
 
 def execute(dc_from, dc_to):

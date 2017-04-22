@@ -2,7 +2,7 @@ from switchdc import get_reason
 from switchdc.lib.remote import Remote
 from switchdc.log import logger
 
-__title__ = 'Disabling puppet on selected hosts'
+__title__ = 'Disabling puppet on selected hosts in {dc_from} and {dc_to}'
 
 
 def execute(dc_from, dc_to):

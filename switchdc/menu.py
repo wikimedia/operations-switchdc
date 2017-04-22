@@ -97,23 +97,29 @@ class Item(object):
         kwargs   -- the dictionary of keyword arguments to pass to the function. [optional, default: None]
         """
         self.name = name
-        self.title = title
         self.status = self.todo
         self.function = function
+
         if args is not None:
             self.args = args
         else:
-            self.args = []
+            self.args = ()
+
         if kwargs is not None:
             self.kwargs = kwargs
         else:
             self.kwargs = {}
 
+        try:
+            title = title.format(*self.args, **self.kwargs)
+        except (KeyError, IndexError):
+            pass  # Leave the title untouched if unable to format it
+
+        self.title = '{title} - {name}'.format(title=title, name=self.name)
+
     def run(self):
-        """Run the item calling the configured function."""
-        params = ', '.join(self.args + ['='.join([str(k), str(v)]) for k, v in self.kwargs.iteritems()])
-        task_desc = '{name}({params})'.format(name=self.name, params=params)
-        log_task_start(task_desc, self.title)
+        """Run the item, calling the configured function."""
+        log_task_start(self.title)
 
         try:
             self.function(*self.args, **self.kwargs)
@@ -126,11 +132,9 @@ class Item(object):
 
         if retval == 0:
             self.status = self.success
-            message = 'Successfully completed'
         else:
             self.status = self.failed
-            message = 'Failed to execute'
 
-        log_task_end(task_desc, message)
+        log_task_end(self.status, self.title)
 
         return retval

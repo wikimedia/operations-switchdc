@@ -4,7 +4,7 @@ from switchdc.lib import mediawiki
 from switchdc.lib.confctl import Confctl
 from switchdc.log import logger
 
-__title__ = "Switch MediaWiki configuration to the new datacenter"
+__title__ = 'Switch MediaWiki master datacenter and read-write discovery records from {dc_from} to {dc_to}'
 
 
 def execute(dc_from, dc_to):

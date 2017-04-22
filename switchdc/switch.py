@@ -90,7 +90,8 @@ def generate_menu(dc_from, dc_to):
             submenu = Menu('Stage {stage}'.format(stage=module_stage))
             menu.append(submenu, stage)
 
-        submenu.append(Item(module.__name__, module.__title__, module.execute, args=[dc_from, dc_to]))
+        submenu.append(Item(module.__name__.split('.')[-1], module.__title__, module.execute,
+                            kwargs={'dc_from': dc_from, 'dc_to': dc_to}))
 
     return menu
 
@@ -119,7 +120,7 @@ def main():
         try:
             submenu = menu.items[stage]
             for item in submenu.items.values():
-                if item.name.split('.')[-1] == args.task:
+                if item.name == args.task:
                     rc = item.run()
                     break
             else:
@@ -135,7 +136,7 @@ def main():
             for item in menu.items[stage].items.values():
                 rc = item.run()
                 if rc != 0:
-                    print "Task {name}: {title} failed, aborting execution".format(name=item.name, title=item.title)
+                    print "Task {name} failed, aborting execution".format(name=item.name)
                     break
     else:
         rc = run(menu, args.dc_from, args.dc_to)  # Run the interactive menu
