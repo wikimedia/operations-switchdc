@@ -21,7 +21,12 @@ class Menu(object):
     def status(self):
         """Getter for the menu status, returns a string representation of the status of it's tasks."""
         completed, total = Menu.calculate_status(self)
-        return '{completed}/{total}'.format(completed=completed, total=total)
+        if completed == total:
+            message = 'DONE'
+        else:
+            message = '{completed}/{total}'.format(completed=completed, total=total)
+
+        return message
 
     def append(self, item, idx=None):
         """Append an item or a submenu to this menu.
