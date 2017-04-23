@@ -39,3 +39,17 @@ def get_config(config_path):
 
 def get_reason():
     return 'MediaWiki Switch datacenter'
+
+
+def ask_confirmation(message):
+    print(message)
+    print('Type "done" to proceed')
+
+    for _ in xrange(3):
+        resp = raw_input('> ')
+        if resp == 'done':
+            break
+
+        print('Invalid response, please type "done" to proceed. After 3 wrong answers the task will be aborted.')
+    else:
+        raise SwitchdcError(1)
