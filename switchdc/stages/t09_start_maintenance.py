@@ -9,7 +9,7 @@ def execute(dc_from, dc_to):
     """Sets mediawiki-maintenance online, starting jobrunners, videoscalers and cronjobs."""
     # Enable and run puppet on the hosts where it was disabled
     remote = Remote()
-    remote.select('R:class = profile::mediawiki::jobrunner or R:class = role::mediawiki::maintenance')
+    remote.select('R:class = profile::mediawiki::jobrunner or R:class = role::mediawiki_maintenance')
     command = 'run-puppet-agent --enable "{message}"'.format(message=get_reason())
     remote.async(command, batch_size=30)
 

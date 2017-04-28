@@ -10,7 +10,7 @@ def execute(dc_from, dc_to):
     remote = Remote()
     # This selects both clusters of mediawiki jobrunners: jobrunner and videoscaler
     jobrunners = Remote.query('R:class = profile::mediawiki::jobrunner')
-    maintenance = Remote.query('R:class = role::mediawiki::maintenance')
+    maintenance = Remote.query('R:class = role::mediawiki_maintenance')
     remote.select(jobrunners | maintenance)
     logger.info('Disabling puppet on MediaWiki jobrunners, videoscalers and maintenance hosts')
     remote.sync('disable-puppet "{message}"'.format(message=get_reason()))

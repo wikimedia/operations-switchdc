@@ -107,7 +107,7 @@ def cronjobs(dc, verify_status, stop=False):
     stop          -- whether to stop the cronjobs (True) or left them untouched (False).
     """
     remote = Remote(site=dc)
-    remote.select('R:class = role::mediawiki::maintenance')
+    remote.select('R:class = role::mediawiki_maintenance')
 
     if stop:
         logger.info('Disabling MediaWiki cronjobs in {dc}'.format(dc=dc))
