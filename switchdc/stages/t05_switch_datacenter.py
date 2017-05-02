@@ -36,4 +36,4 @@ def execute(dc_from, dc_to):
     dns = Discovery('appservers-rw', 'api-rw', 'imagescaler-rw')
     dns.check_record('appservers-rw', 'appservers.svc.{dc_to}.wmnet'.format(dc_to=dc_to))
     dns.check_record('api-rw', 'api.svc.{dc_to}.wmnet'.format(dc_to=dc_to))
-    dns.check_record('appservers-rw', 'rendering.svc.{dc_to}.wmnet'.format(dc_to=dc_to))
+    dns.check_record('imagescaler-rw', 'rendering.svc.{dc_to}.wmnet'.format(dc_to=dc_to))
