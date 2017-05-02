@@ -50,11 +50,11 @@ def wait_for_master(instance):
             break
         else:
             logger.debug(
-                'Master link status: {s}, master_sync_in_progress: {p}'.format(
-                    s=replica['master_link_status'], p=replica['master_sync_in_progress']))
+                '{i} - master link status: {s}, master_sync_in_progress: {p}'.format(
+                    i=instance, s=replica['master_link_status'], p=replica['master_sync_in_progress']))
         time.sleep(SLEEP)
-
-    logger.error("Instance {i} is unreachable or waiting for master timed out".format(i=instance))
+    if not success:
+        logger.error("Instance {i} is unreachable or waiting for master timed out".format(i=instance))
     return (instance, success)
 
 
@@ -77,7 +77,7 @@ def execute(dc_from, dc_to):
     remote.sync('systemctl restart redis-instance-*')
 
     # Verify
-    servers = RedisShards('jobqueue')
+    servers = RedisShards('jobqueue', config_dir, REDIS_PASSWORD)
     failed = servers.check_parallel(dc_to)
     if failed:
         logger.error("The following instances are still not in sync: {i}".format(', '.join(failed)))
