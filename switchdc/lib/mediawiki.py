@@ -1,4 +1,5 @@
 import os
+import time
 
 import requests
 
@@ -43,6 +44,39 @@ def scap_sync_config_file(filename, message):
     command = 'su - {user} -c \'scap sync-file --force wmf-config/{filename}.php "{message}"\''.format(
         user=os.getlogin(), filename=filename, message=message)
     remote.sync(command)
+
+
+def check_siteinfo(jq_query, dc=None, attempts=1, sleep=5):
+    """Check that siteinfo JSON matches the jq_query. Raises SwitchdcError on failure.
+
+    Arguments:
+    jq_query -- the JQ query to use to determine if the check passes or fails. JQ is run with the -e flag.
+    dc       -- filter by the given datacenter, if present. [optional, default: None]
+    attempts -- the number of times to retry the check. [optional, default: 1]
+    sleep    -- sleep in seconds between attempts. [optional, default: 5]
+    """
+    logger.debug('Checking MediaWiki siteinfo for {jq_query}'.format(jq_query=jq_query))
+
+    remote = Remote(site=dc)
+    remote.select('R:Class = role::mediawiki::webserver')
+    command = ("curl -sx localhost:80 -H 'X-Forwarded-Proto: https' "
+               "'http://en.wikipedia.org/w/api.php?action=query&meta=siteinfo&format=json&formatversion=2' "
+               "| jq -e '{jq_query}'".format(jq_query=jq_query))
+
+    for i in xrange(attempts):
+        try:
+            logger.debug('Attempt {attempt} checking MediaWiki siteinfo for {jq_query}'.format(
+                attempt=i, jq_query=jq_query))
+            remote.sync(command, is_safe=True)
+            break
+        except RemoteExecutionError:
+            if i != attempts - 1:
+                # Do not sleep after the last attempt
+                time.sleep(sleep)
+    else:
+        logger.error('Reached max attempts ({attempts}) while checking MediaWiki siteinfo for {jq_query}'.format(
+            attempts=attempts, jq_query=jq_query))
+        raise SwitchdcError(1)
 
 
 def jobrunners(dc, verify_status, stop=False):
