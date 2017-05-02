@@ -4,7 +4,9 @@ import time
 import requests
 
 from switchdc import SwitchdcError
+from switchdc.dry_run import is_dry_run
 from switchdc.log import logger
+from switchdc.lib.confctl import Confctl
 from switchdc.lib.remote import Remote, RemoteExecutionError
 
 
@@ -44,6 +46,36 @@ def scap_sync_config_file(filename, message):
     command = 'su - {user} -c \'scap sync-file --force wmf-config/{filename}.php "{message}"\''.format(
         user=os.getlogin(), filename=filename, message=message)
     remote.sync(command)
+
+
+def set_readonly(readonly, dc):
+    """Set the Conftool readonly variable for MediaWiki config in a specific dc.
+
+    Arguments:
+    readonly -- the readonly message to set it read-only, False to set it read-write.
+    dc       -- the DC for which the configuration must be changed.
+    """
+    mwconfig = Confctl('mwconfig')
+    mwconfig.update({'val': readonly}, name='ReadOnly', scope=dc)
+    for obj in mwconfig.get(scope=dc, name='ReadOnly'):
+        if obj.val != readonly and not is_dry_run():
+            logger.error('MediaWiki config readonly record was not set: {record}'.format(record=obj.key))
+            raise SwitchdcError(1)
+
+
+def set_master_datacenter(datacenter):
+    """Set the MediaWiki config master datacenter variable in Conftool.
+
+    Arguments:
+    datacenter -- the new master datacenter.
+    """
+    mwconfig = Confctl('mwconfig')
+    mwconfig.update({'val': datacenter}, name='WMFMasterDatacenter', scope='common')
+    for obj in mwconfig.get(name='WMFMasterDatacenter', scope='common'):
+        if obj.val != datacenter and not is_dry_run():
+            logger.error('MediaWiki config WMFMasterDatacenter record was not set: {record}'.format(
+                record=obj.key))
+            raise SwitchdcError(1)
 
 
 def check_siteinfo(jq_query, dc=None, attempts=1, sleep=5):
