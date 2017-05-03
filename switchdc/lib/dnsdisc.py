@@ -1,3 +1,5 @@
+import time
+
 import dns.resolver
 
 from switchdc import SwitchdcError
@@ -43,7 +45,7 @@ class Discovery(object):
                 logger.error("Expected TTL '{expected}', got '{ttl}'".format(expected=expected, ttl=record.ttl))
                 raise SwitchdcError(1)
 
-    def check_record(self, name, expected):
+    def check_record(self, name, expected, attempts=3, sleep=3):
         """Check that a record resolve to the expected IP.
 
         Arguments:
@@ -56,11 +58,21 @@ class Discovery(object):
         # Getting the expected record from the first resolver
         address = self.resolvers[self.resolvers.keys()[0]].query(expected)[0].address
 
-        for record in self.resolve(name=name):
-            if not is_dry_run() and record[0].address != address:
-                logger.error("Expected IP '{expected}', got '{address}'".format(
-                    expected=address, address=record[0].address))
-                raise SwitchdcError(1)
+        for i in xrange(attempts):
+            logger.debug('Attempt {attempt} to check resolution for record {record}'.format(attempt=i, record=name))
+            failed = False
+            for record in self.resolve(name=name):
+                if not is_dry_run() and record[0].address != address:
+                    failed = True
+                    logger.error("Expected IP '{expected}', got '{address}' for record {record}".format(
+                        expected=address, address=record[0].address, record=name))
+
+            if not failed:
+                break
+            elif i != (attempts - 1):  # Do not sleep after the last attempt
+                time.sleep(sleep)
+        else:
+            raise SwitchdcError(1)
 
     def resolve(self, name=None):
         """Generator that yields the resolved records.
