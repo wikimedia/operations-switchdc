@@ -16,14 +16,14 @@ def execute(dc_from, dc_to):
     message = 'Set MediaWiki in read-only mode in datacenter {dc_from}'.format(dc_from=dc_from)
     filename = 'db-{dc_from}'.format(dc_from=dc_from)
     expected = """'readOnlyBySection' => [
-\t's1'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
-\t's2'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
-\t'DEFAULT' => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes', # s3
-\t's4'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
-\t's5'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
-\t's6'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
-\t's7'      => 'MediaWiki is in read-only mode for maintenance. Please try again in a few minutes',
-],"""
+\t's1'      => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.',
+\t's2'      => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.',
+\t'DEFAULT' => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.', # s3
+\t's4'      => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.',
+\t's5'      => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.',
+\t's6'      => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.',
+\t's7'      => 'This wiki is in read-only mode for a datacenter switchover test. See https://meta.wikimedia.org/wiki/codfw for more information.',
+],"""  # noqa: E501
 
     if not mediawiki.check_config_line(filename, expected):
         log_message = 'MediaWiki read-only period starts at: {now}'.format(now=datetime.utcnow())
