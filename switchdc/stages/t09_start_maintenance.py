@@ -13,6 +13,11 @@ def execute(dc_from, dc_to):
     command = 'run-puppet-agent --enable "{message}"'.format(message=get_reason())
     remote.async(command, batch_size=30)
 
+    # Clear systemctl state in dc_from (jessie only)
+    remote = Remote(site=dc_from)
+    remote.select('R:class = role::mediawiki::jobrunner')
+    remote.async('systemctl reset-failed {jobchron,jobrunner}')
+
     # Verify all services are started in dc_to
     mediawiki.jobrunners(dc_to, 'running')
     mediawiki.videoscalers(dc_to, 'running')
