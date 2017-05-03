@@ -57,3 +57,5 @@ def verify_changes(worker, expected, dc_from, dc_to):
 
     if failed:
         ask_confirmation('Please manually verify that the puppet run was applied with the expected changes')
+    else:
+        logger.info("Expected message '{expected}' found on all hosts for all backends".format(expected=expected))
